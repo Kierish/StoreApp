@@ -363,3 +363,39 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# =========================================================================
+# Monorepo Frontend (Vite / React / Node / VS Code) Additions
+# =========================================================================
+
+# Node dependencies (ensures subfolder node_modules are ignored)
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Vite / React Production Build Outputs
+**/dist/
+**/build/
+**/out-tsc/
+
+# Local Frontend Environment Variables (Secrets)
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+!frontend/.env
+
+# Root Environment Variables (Do not commit actual passwords)
+.env
+!.env.example
+
+# Frontend IDEs (For developers using VS Code or WebStorm for React)
+.vscode/
+.idea/
+*.suo
+
+# TypeScript cache
+*.tsbuildinfo
