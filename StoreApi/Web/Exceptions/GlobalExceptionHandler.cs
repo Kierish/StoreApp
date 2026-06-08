@@ -15,16 +15,21 @@ namespace StoreApi.Infrastructure.Exceptions
         public async ValueTask<bool> TryHandleAsync(
             HttpContext httpContext,
             Exception exception,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken
+        )
         {
-            _logger.LogError(exception, "An unhandled exception occurred: {Message}", exception.Message);
+            _logger.LogError(
+                exception,
+                "An unhandled exception occurred: {Message}",
+                exception.Message
+            );
 
             var problemDetails = new ProblemDetails
             {
                 Status = StatusCodes.Status500InternalServerError,
                 Title = "Server Error",
                 Detail = "An unexpected system error occurred. Please try again later.",
-                Instance = httpContext.Request.Path
+                Instance = httpContext.Request.Path,
             };
 
             httpContext.Response.StatusCode = problemDetails.Status.Value;

@@ -11,23 +11,26 @@ namespace Application.Services
     public class ProductService : IProductService
     {
         private readonly IProductRepository _repo;
+
         public ProductService(IProductRepository repo)
         {
             _repo = repo;
         }
 
         public async Task<PagedList<ProductReadDto>> GetAllAsync(PageParameters pageParameters)
-        {   
+        {
             var pagedProducts = await _repo.GetListProductsPerPageAsync(pageParameters);
-            
+
             var dtos = pagedProducts.Items.Select(p => p.ToReadDto()).ToList();
 
             return new PagedList<ProductReadDto>(
                 dtos,
                 pagedProducts.TotalCount,
                 pagedProducts.Page,
-                pagedProducts.PageSize);
+                pagedProducts.PageSize
+            );
         }
+
         public async Task<Result<ProductReadDto>> GetByIdAsync(Guid id)
         {
             var product = await _repo.GetProductByIdAsync(id);
@@ -36,13 +39,16 @@ namespace Application.Services
                 return Result<ProductReadDto>.Failure(ProductErrors.ProductNotFound(id));
 
             return Result<ProductReadDto>.Success(product.ToReadDto());
-        }   
+        }
+
         public async Task<Result<ProductReadDto>> CreateAsync(ProductCreateDto dto)
         {
             var categoryId = await _repo.GetCategoryIdAsync(dto.CategoryName);
 
             if (categoryId is null)
-                return Result<ProductReadDto>.Failure(ProductErrors.CategoryNotFound(dto.CategoryName));
+                return Result<ProductReadDto>.Failure(
+                    ProductErrors.CategoryNotFound(dto.CategoryName)
+                );
 
             var newProduct = dto.ToEntity(categoryId.Value);
 
@@ -51,7 +57,7 @@ namespace Application.Services
                 newProduct.Tags = await _repo.GetTagsContainedInDto(dto.TagNames);
             }
 
-            newProduct.ProductSeo = dto.ProductSeo?.ToEntity();
+            newProduct.MetaData = dto.ProductSeo?.ToEntity();
 
             _repo.AddProduct(newProduct);
             await _repo.SaveChangesAsync();
@@ -60,6 +66,7 @@ namespace Application.Services
 
             return Result<ProductReadDto>.Success(newProduct.ToReadDto());
         }
+
         public async Task<Result<bool>> UpdateAsync(Guid id, ProductUpdateDto dto)
         {
             var product = await _repo.GetProductByIdAsync(id);
@@ -96,13 +103,13 @@ namespace Application.Services
 
             if (dto.ProductSeo is { } seoDto)
             {
-                if (product.ProductSeo is { } existingSeo)
+                if (product.MetaData is { } existingSeo)
                 {
                     seoDto.MapToEntity(existingSeo);
                 }
                 else
                 {
-                    product.ProductSeo = seoDto.ToEntity();
+                    product.MetaData = seoDto.ToEntity();
                 }
             }
 
@@ -110,6 +117,7 @@ namespace Application.Services
 
             return Result<bool>.Success(true);
         }
+
         public async Task<Result<bool>> DeleteAsync(Guid id)
         {
             var realProduct = await _repo.GetProductByIdAsync(id);

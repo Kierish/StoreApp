@@ -1,3 +1,6 @@
+using System.Globalization;
+using System.Reflection;
+using System.Text;
 using Application.Interfaces.Services;
 using Application.Repositories;
 using Application.Services;
@@ -19,9 +22,6 @@ using StoreApi.Infrastructure.Exceptions;
 using StoreApi.Infrastructure.Filters;
 using StoreApi.Infrastructure.Middlewares;
 using StoreApi.Infrastructure.Swagger;
-using System.Globalization;
-using System.Reflection;
-using System.Text;
 
 var cultureInfo = new CultureInfo("en-US");
 CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
@@ -29,14 +29,34 @@ CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var allowedOrigins =
+    builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? ["http://localhost:5173"];
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(
+        "AllowReactApp",
+        policy =>
+        {
+            policy
+                .WithOrigins(allowedOrigins)
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .WithExposedHeaders("X-Pagination");
+        }
+    );
+});
+
 builder.Services.AddProblemDetails();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
-builder.Host.UseSerilog((context, loggerConfiguration) =>
-{
-    loggerConfiguration.ReadFrom.Configuration(context.Configuration);
-});
+builder.Host.UseSerilog(
+    (context, loggerConfiguration) =>
+    {
+        loggerConfiguration.ReadFrom.Configuration(context.Configuration);
+    }
+);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
@@ -69,10 +89,12 @@ builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtOptions>();
 
-if (jwtSettings is null
+if (
+    jwtSettings is null
     || string.IsNullOrEmpty(jwtSettings.Issuer)
     || string.IsNullOrEmpty(jwtSettings.Audience)
-    || string.IsNullOrEmpty(jwtSettings.SecretKey))
+    || string.IsNullOrEmpty(jwtSettings.SecretKey)
+)
 {
     throw new InvalidOperationException("JwtSettings missed something from configuration.");
 }
@@ -91,10 +113,11 @@ var tokenValidationParameters = new TokenValidationParameters
     ValidateIssuerSigningKey = true,
     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
 
-    ClockSkew = TimeSpan.Zero
+    ClockSkew = TimeSpan.Zero,
 };
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+builder
+    .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = tokenValidationParameters;
@@ -102,22 +125,28 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddSwaggerGen(options =>
 {
-    options.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "Store Management API",
-        Version = "v1",
-        Description = "A production-grade REST API for store management."
-    });
+    options.SwaggerDoc(
+        "v1",
+        new OpenApiInfo
+        {
+            Title = "Store Management API",
+            Version = "v1",
+            Description = "A production-grade REST API for store management.",
+        }
+    );
 
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Name = "Authorization",
-        Type = SecuritySchemeType.Http,
-        Scheme = "Bearer",
-        BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Description = "Enter your JWT token."
-    });
+    options.AddSecurityDefinition(
+        "Bearer",
+        new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            Scheme = "Bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description = "Enter your JWT token.",
+        }
+    );
 
     options.OperationFilter<AuthOperationFilter>();
     options.OperationFilter<GlobalResponsesOperationFilter>();
@@ -127,7 +156,6 @@ builder.Services.AddSwaggerGen(options =>
     options.IncludeXmlComments(xmlPath);
 });
 
-
 var app = builder.Build();
 
 app.UseExceptionHandler();
@@ -136,6 +164,8 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowReactApp");
 
 app.UseAuthentication();
 

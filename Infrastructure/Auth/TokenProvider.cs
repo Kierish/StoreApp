@@ -1,24 +1,26 @@
-﻿using Application.Interfaces.Services;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
+using Application.Interfaces.Services;
 using Domain.ErrorMessages;
 using Domain.Models.Auth;
 using Domain.Results;
 using Infrastructure.Auth.Options;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace Infrastructure.Auth
 {
     public class TokenProvider : ITokenProvider
     {
         private readonly JwtOptions _jwtSettings;
+
         public TokenProvider(IOptions<JwtOptions> jwtOptions)
         {
             _jwtSettings = jwtOptions.Value;
         }
+
         public string GenerateToken(ApplicationUser user, string jti)
         {
             var claims = new List<Claim>()
@@ -28,7 +30,7 @@ namespace Infrastructure.Auth
                 new Claim(JwtRegisteredClaimNames.Name, user.UserName),
                 new Claim(JwtRegisteredClaimNames.PhoneNumber, user.PhoneNumber),
                 new Claim(ClaimTypes.Role, user.Role),
-                new Claim(JwtRegisteredClaimNames.Jti, jti)
+                new Claim(JwtRegisteredClaimNames.Jti, jti),
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
@@ -39,7 +41,7 @@ namespace Infrastructure.Auth
                 claims: claims,
                 expires: DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes),
                 signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
-                );
+            );
 
             var jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
 
@@ -60,7 +62,7 @@ namespace Infrastructure.Auth
                 IsRevoked = false,
                 DateAdded = DateTime.UtcNow,
                 DateExpire = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationDays),
-                User = user
+                User = user,
             };
 
             return refreshToken;
@@ -75,8 +77,10 @@ namespace Infrastructure.Auth
                 ValidateAudience = true,
                 ValidAudience = _jwtSettings.Audience,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey)),
-                ValidateLifetime = false
+                IssuerSigningKey = new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(_jwtSettings.SecretKey)
+                ),
+                ValidateLifetime = false,
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -84,11 +88,20 @@ namespace Infrastructure.Auth
             try
             {
                 // Check 1: Jwt format
-                var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
+                var principal = tokenHandler.ValidateToken(
+                    token,
+                    tokenValidationParameters,
+                    out SecurityToken securityToken
+                );
 
                 // Check 2: Jwt encryption algorithm
-                if (securityToken is not JwtSecurityToken jwtSecurityToken
-                    || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+                if (
+                    securityToken is not JwtSecurityToken jwtSecurityToken
+                    || !jwtSecurityToken.Header.Alg.Equals(
+                        SecurityAlgorithms.HmacSha256,
+                        StringComparison.InvariantCultureIgnoreCase
+                    )
+                )
                 {
                     return Result<ClaimsPrincipal>.Failure(AuthErrors.InvalidToken());
                 }

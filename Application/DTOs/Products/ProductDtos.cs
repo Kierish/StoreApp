@@ -19,7 +19,7 @@ namespace Application.DTOs.Products
         Guid CategoryId,
         string? CategoryName,
         decimal Price,
-        ProductSeoReadDto? ProductSeo
+        PageMetadataReadDto? ProductSeo
     );
 
     /// <summary>
@@ -35,7 +35,7 @@ namespace Application.DTOs.Products
         List<string>? TagNames,
         string CategoryName,
         decimal Price,
-        ProductSeoCreateDto? ProductSeo
+        PageMetadataCreateDto? ProductSeo
     );
 
     /// <summary>
@@ -51,6 +51,6 @@ namespace Application.DTOs.Products
         List<string>? TagNames,
         string? CategoryName,
         decimal? Price,
-        ProductSeoUpdateDto? ProductSeo
+        PageMetadataUpdateDto? ProductSeo
     );
 }

@@ -10,8 +10,8 @@ namespace StoreApi.Controllers
     {
         private readonly IAccountService _accService;
 
-        public AuthController(IAccountService accService,
-            ILogger<AuthController> logger) : base(logger) 
+        public AuthController(IAccountService accService, ILogger<AuthController> logger)
+            : base(logger)
         {
             _accService = accService;
         }
@@ -59,7 +59,10 @@ namespace StoreApi.Controllers
                 return HandleFailure(result);
             }
 
-            _logger.LogInformation("New user registered successfully with email {Email}.", dto.Email);
+            _logger.LogInformation(
+                "New user registered successfully with email {Email}.",
+                dto.Email
+            );
 
             return Ok(result.Data);
         }

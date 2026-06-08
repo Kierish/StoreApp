@@ -4,19 +4,16 @@ using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Application.Migrations
+namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260502151935_InitialCreate")]
-    partial class InitialCreate
+    partial class AppDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,22 +22,7 @@ namespace Application.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("ProductTag", b =>
-                {
-                    b.Property<Guid>("ProductsId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("TagsId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("ProductsId", "TagsId");
-
-                    b.HasIndex("TagsId");
-
-                    b.ToTable("ProductTag");
-                });
-
-            modelBuilder.Entity("StoreApi.Models.Identity.ApplicationUser", b =>
+            modelBuilder.Entity("Domain.Models.Auth.ApplicationUser", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -85,7 +67,7 @@ namespace Application.Migrations
                     b.ToTable("ApplicationUser", (string)null);
                 });
 
-            modelBuilder.Entity("StoreApi.Models.Identity.RefreshToken", b =>
+            modelBuilder.Entity("Domain.Models.Auth.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -118,7 +100,7 @@ namespace Application.Migrations
                     b.ToTable("RefreshToken", (string)null);
                 });
 
-            modelBuilder.Entity("StoreApi.Models.Store.Category", b =>
+            modelBuilder.Entity("Domain.Models.Products.Category", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -146,7 +128,7 @@ namespace Application.Migrations
                         });
                 });
 
-            modelBuilder.Entity("StoreApi.Models.Store.Product", b =>
+            modelBuilder.Entity("Domain.Models.Products.Product", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -177,7 +159,7 @@ namespace Application.Migrations
                     b.ToTable("Product", (string)null);
                 });
 
-            modelBuilder.Entity("StoreApi.Models.Store.Tag", b =>
+            modelBuilder.Entity("Domain.Models.Products.Tag", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -212,22 +194,22 @@ namespace Application.Migrations
 
             modelBuilder.Entity("ProductTag", b =>
                 {
-                    b.HasOne("StoreApi.Models.Store.Product", null)
-                        .WithMany()
-                        .HasForeignKey("ProductsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Property<Guid>("ProductsId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.HasOne("StoreApi.Models.Store.Tag", null)
-                        .WithMany()
-                        .HasForeignKey("TagsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Property<Guid>("TagsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("ProductsId", "TagsId");
+
+                    b.HasIndex("TagsId");
+
+                    b.ToTable("ProductTag");
                 });
 
-            modelBuilder.Entity("StoreApi.Models.Identity.RefreshToken", b =>
+            modelBuilder.Entity("Domain.Models.Auth.RefreshToken", b =>
                 {
-                    b.HasOne("StoreApi.Models.Identity.ApplicationUser", "User")
+                    b.HasOne("Domain.Models.Auth.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -236,15 +218,47 @@ namespace Application.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("StoreApi.Models.Store.Product", b =>
+            modelBuilder.Entity("Domain.Models.Products.Category", b =>
                 {
-                    b.HasOne("StoreApi.Models.Store.Category", "Category")
+                    b.OwnsOne("Domain.Models.Products.PageMetaData", "MetaData", b1 =>
+                        {
+                            b1.Property<Guid>("CategoryId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("MetaDescription")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("MetaTitle")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("nvarchar(100)");
+
+                            b1.Property<string>("OpenGraphImageUrl")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Slug")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("CategoryId");
+
+                            b1.ToTable("Category");
+
+                            b1.WithOwner()
+                                .HasForeignKey("CategoryId");
+                        });
+
+                    b.Navigation("MetaData");
+                });
+
+            modelBuilder.Entity("Domain.Models.Products.Product", b =>
+                {
+                    b.HasOne("Domain.Models.Products.Category", "Category")
                         .WithMany("Products")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsOne("StoreApi.Models.Store.ProductSeo", "ProductSeo", b1 =>
+                    b.OwnsOne("Domain.Models.Products.PageMetaData", "MetaData", b1 =>
                         {
                             b1.Property<Guid>("ProductId")
                                 .HasColumnType("uniqueidentifier");
@@ -273,10 +287,25 @@ namespace Application.Migrations
 
                     b.Navigation("Category");
 
-                    b.Navigation("ProductSeo");
+                    b.Navigation("MetaData");
                 });
 
-            modelBuilder.Entity("StoreApi.Models.Store.Category", b =>
+            modelBuilder.Entity("ProductTag", b =>
+                {
+                    b.HasOne("Domain.Models.Products.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Models.Products.Tag", null)
+                        .WithMany()
+                        .HasForeignKey("TagsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Models.Products.Category", b =>
                 {
                     b.Navigation("Products");
                 });

@@ -1,6 +1,6 @@
-﻿using Serilog.Context;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.IdentityModel.Tokens.Jwt;
+using Serilog.Context;
 
 namespace StoreApi.Infrastructure.Middlewares
 {

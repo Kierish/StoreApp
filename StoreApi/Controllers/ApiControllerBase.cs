@@ -8,7 +8,8 @@ namespace StoreApi.Controllers
     [ApiController]
     [Consumes("application/json")]
     [Produces("application/json")]
-    public class ApiControllerBase<T> : ControllerBase where T : ApiControllerBase<T>
+    public class ApiControllerBase<T> : ControllerBase
+        where T : ApiControllerBase<T>
     {
         protected readonly ILogger<T> _logger;
 
@@ -20,10 +21,15 @@ namespace StoreApi.Controllers
         protected ActionResult HandleFailure<TDto>(Result<TDto> result)
         {
             if (result.IsSuccess)
-                throw new InvalidOperationException("Cannot handle failure for a successful result.");
+                throw new InvalidOperationException(
+                    "Cannot handle failure for a successful result."
+                );
 
-            _logger.LogWarning("Request failed. Code: {ErrorCode}. Reason: {ErrorMessage}",
-                result.Error.Code, result.Error.Message);
+            _logger.LogWarning(
+                "Request failed. Code: {ErrorCode}. Reason: {ErrorMessage}",
+                result.Error.Code,
+                result.Error.Message
+            );
 
             var statusCode = result.Error.Type switch
             {
@@ -33,13 +39,13 @@ namespace StoreApi.Controllers
                 ErrorType.Forbidden => StatusCodes.Status403Forbidden,
                 ErrorType.NotFound => StatusCodes.Status404NotFound,
                 ErrorType.Conflict => StatusCodes.Status409Conflict,
-                _ => StatusCodes.Status500InternalServerError
+                _ => StatusCodes.Status500InternalServerError,
             };
 
             return Problem(
                 statusCode: statusCode,
-                title: result.Error.Code,    
-                detail: result.Error.Message 
+                title: result.Error.Code,
+                detail: result.Error.Message
             );
         }
     }

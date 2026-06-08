@@ -7,11 +7,9 @@ namespace StoreApi.Validators.Auth
     {
         public LoginDataDtoValidator()
         {
-            RuleFor(x => x.Email).NotEmpty().EmailAddress()
-                .MaximumLength(256);
+            RuleFor(x => x.Email).NotEmpty().EmailAddress().MaximumLength(256);
 
-            RuleFor(x => x.Password).NotEmpty()
-                .MinimumLength(8).MaximumLength(100);
+            RuleFor(x => x.Password).NotEmpty().MinimumLength(8).MaximumLength(100);
         }
     }
 
@@ -19,17 +17,13 @@ namespace StoreApi.Validators.Auth
     {
         public RegisterDataDtoValidator()
         {
-            RuleFor(x => x.UserName).NotEmpty()
-                .MinimumLength(3).MaximumLength(100);
+            RuleFor(x => x.UserName).NotEmpty().MinimumLength(3).MaximumLength(100);
 
-            RuleFor(x => x.Email).NotEmpty().EmailAddress()
-                .MaximumLength(256);
+            RuleFor(x => x.Email).NotEmpty().EmailAddress().MaximumLength(256);
 
-            RuleFor(x => x.PhoneNumber).NotEmpty()
-                .MaximumLength(20);
+            RuleFor(x => x.PhoneNumber).NotEmpty().MaximumLength(20);
 
-            RuleFor(x => x.Password).NotEmpty()
-                .MinimumLength(8).MaximumLength(100);
+            RuleFor(x => x.Password).NotEmpty().MinimumLength(8).MaximumLength(100);
         }
     }
 }

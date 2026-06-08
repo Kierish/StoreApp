@@ -13,8 +13,7 @@ namespace Infrastructure.Data.Configurations.Products
 
             builder.Property(t => t.Name).HasMaxLength(100);
 
-            builder.HasMany(t => t.Products)
-                .WithMany(pr => pr.Tags);
+            builder.HasMany(t => t.Products).WithMany(pr => pr.Tags);
         }
     }
 }

@@ -5,10 +5,9 @@ namespace Application.Validators
 {
     public class PageParametersValidator : AbstractValidator<PageParameters>
     {
-        public PageParametersValidator() 
+        public PageParametersValidator()
         {
-            RuleFor(pg => pg.Page).NotEmpty()
-                .GreaterThan(0);
+            RuleFor(pg => pg.Page).NotEmpty().GreaterThan(0);
 
             RuleFor(pg => pg.PageSize).InclusiveBetween(1, 50);
         }

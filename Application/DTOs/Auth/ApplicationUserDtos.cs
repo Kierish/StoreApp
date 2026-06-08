@@ -7,10 +7,7 @@ namespace Application.DTOs.Auth
     /// </summary>
     /// <param name="Email">The user's email address.</param>
     /// <param name="Password">The user's password.</param>
-    public record LoginDataDto(
-        string Email,
-        string Password
-        );
+    public record LoginDataDto(string Email, string Password);
 
     /// <summary>
     /// Represents the payload required to register a new user account.
@@ -24,5 +21,5 @@ namespace Application.DTOs.Auth
         string Email,
         string PhoneNumber,
         string Password
-        );
+    );
 }

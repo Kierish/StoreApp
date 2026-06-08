@@ -8,27 +8,22 @@ namespace StoreApi.Infrastructure.Swagger
     {
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
-            var hasAuthorize = context.MethodInfo
-                                    .DeclaringType!
-                                    .GetCustomAttributes(true)
-                                    .OfType<AuthorizeAttribute>()
-                                    .Any()
-                                ||
-                                context.MethodInfo
-                                    .GetCustomAttributes(true)
-                                    .OfType<AuthorizeAttribute>()
-                                    .Any();
+            var hasAuthorize =
+                context
+                    .MethodInfo.DeclaringType!.GetCustomAttributes(true)
+                    .OfType<AuthorizeAttribute>()
+                    .Any()
+                || context.MethodInfo.GetCustomAttributes(true).OfType<AuthorizeAttribute>().Any();
 
-            var hasAllowAnonymous = context.MethodInfo
-                                        .DeclaringType!
-                                        .GetCustomAttributes(true)
-                                        .OfType<AllowAnonymousAttribute>()
-                                        .Any()
-                                    ||
-                                    context.MethodInfo
-                                        .GetCustomAttributes(true)
-                                        .OfType<AllowAnonymousAttribute>()
-                                        .Any();
+            var hasAllowAnonymous =
+                context
+                    .MethodInfo.DeclaringType!.GetCustomAttributes(true)
+                    .OfType<AllowAnonymousAttribute>()
+                    .Any()
+                || context
+                    .MethodInfo.GetCustomAttributes(true)
+                    .OfType<AllowAnonymousAttribute>()
+                    .Any();
 
             if (!hasAuthorize || hasAllowAnonymous)
                 return;
@@ -43,12 +38,12 @@ namespace StoreApi.Infrastructure.Swagger
                             Reference = new OpenApiReference
                             {
                                 Type = ReferenceType.SecurityScheme,
-                                Id   = "Bearer"
-                            }
+                                Id = "Bearer",
+                            },
                         },
                         Array.Empty<string>()
-                    }
-                }
+                    },
+                },
             };
         }
     }

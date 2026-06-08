@@ -13,7 +13,16 @@ namespace Infrastructure.Data.Configurations.Products
 
             builder.Property(c => c.Name).HasMaxLength(100);
 
-            builder.HasMany(c => c.Products)
+            builder.OwnsOne(
+                c => c.MetaData,
+                metadataBuilder =>
+                {
+                    metadataBuilder.Property(s => s.MetaTitle).HasMaxLength(100);
+                }
+            );
+
+            builder
+                .HasMany(c => c.Products)
                 .WithOne(pr => pr.Category)
                 .HasForeignKey(pr => pr.CategoryId);
         }

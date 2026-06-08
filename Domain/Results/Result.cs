@@ -1,6 +1,6 @@
 ﻿namespace Domain.Results
 {
-    public class Result<T> 
+    public class Result<T>
     {
         public bool IsSuccess { get; }
         public T? Data { get; }
@@ -18,10 +18,8 @@
             Error = error;
         }
 
-        public static Result<T> Success(T? data)
-            => new(true, data, Error.None);
+        public static Result<T> Success(T? data) => new(true, data, Error.None);
 
-        public static Result<T> Failure(Error error)
-            => new(false, default, error);
+        public static Result<T> Failure(Error error) => new(false, default, error);
     }
 }

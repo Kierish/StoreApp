@@ -7,18 +7,12 @@ namespace Application.DTOs.Auth
     /// </summary>
     /// <param name="Token">The JWT access token.</param>
     /// <param name="RefreshToken">The refresh token used to obtain a new access token.</param>
-    public record AuthResponseDto(
-        string Token,
-        string RefreshToken
-        );
+    public record AuthResponseDto(string Token, string RefreshToken);
 
     /// <summary>
     /// Represents the request payload for refreshing an expired JWT access token.
     /// </summary>
     /// <param name="RefreshToken">The active refresh token.</param>
     /// <param name="JwtToken">The expired JWT access token.</param>
-    public record AuthRequestDto(
-        string RefreshToken,
-        string JwtToken
-        );
+    public record AuthRequestDto(string RefreshToken, string JwtToken);
 }

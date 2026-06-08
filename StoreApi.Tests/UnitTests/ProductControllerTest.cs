@@ -19,7 +19,8 @@ namespace StoreApi.Tests.UnitTests
             var returnedDto = fixture.Create<ProductReadDto>();
             var mockService = new Mock<IProductService>();
 
-            mockService.Setup(s => s.CreateAsync(inputDto))
+            mockService
+                .Setup(s => s.CreateAsync(inputDto))
                 .ReturnsAsync(Result<ProductReadDto>.Success(returnedDto));
 
             var mockLogger = new Mock<ILogger<ProductController>>();

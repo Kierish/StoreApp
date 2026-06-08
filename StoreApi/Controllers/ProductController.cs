@@ -1,10 +1,10 @@
-﻿using Application.DTOs.Products;
+﻿using System.Text.Json;
+using Application.DTOs.Products;
 using Application.Interfaces.Services;
 using Application.Pagination;
 using Domain.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
 
 namespace StoreApi.Controllers
 {
@@ -14,8 +14,9 @@ namespace StoreApi.Controllers
     public class ProductController : ApiControllerBase<ProductController>
     {
         private readonly IProductService _service;
-        public ProductController(IProductService service,
-            ILogger<ProductController> logger) : base(logger) 
+
+        public ProductController(IProductService service, ILogger<ProductController> logger)
+            : base(logger)
         {
             _service = service;
         }
@@ -29,17 +30,20 @@ namespace StoreApi.Controllers
         [HttpGet]
         [AllowAnonymous]
         [ProducesResponseType(typeof(IEnumerable<ProductReadDto>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<ProductReadDto>>> GetProducts([FromQuery] PageParameters pageParameters)
+        public async Task<ActionResult<IEnumerable<ProductReadDto>>> GetProducts(
+            [FromQuery] PageParameters pageParameters
+        )
         {
             var pageProducts = await _service.GetAllAsync(pageParameters);
 
             var metadata = new
             {
-                pageProducts.TotalCount,
-                pageProducts.PageSize,
                 pageProducts.Page,
+                pageProducts.PageSize,
+                pageProducts.TotalPages,
+                pageProducts.TotalCount,
                 pageProducts.HasNextPage,
-                pageProducts.HasPreviousPage
+                pageProducts.HasPreviousPage,
             };
 
             Response.Headers["X-Pagination"] = JsonSerializer.Serialize(metadata);
@@ -91,7 +95,11 @@ namespace StoreApi.Controllers
 
             _logger.LogInformation("Product {ProductId} added successfully", result.Data!.Id);
 
-            return CreatedAtAction(nameof(GetProductById), new { id = result.Data!.Id }, result.Data);
+            return CreatedAtAction(
+                nameof(GetProductById),
+                new { id = result.Data!.Id },
+                result.Data
+            );
         }
 
         /// <summary>
@@ -105,7 +113,6 @@ namespace StoreApi.Controllers
         [Authorize(Roles = UserRoles.Customer + "," + UserRoles.Employee)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-
         public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] ProductUpdateDto dto)
         {
             var result = await _service.UpdateAsync(id, dto);
@@ -115,7 +122,11 @@ namespace StoreApi.Controllers
                 return HandleFailure(result);
             }
 
-            _logger.LogInformation("ProductId {ProductId} was successfully changed with data: {@ProductDto}", id, dto);
+            _logger.LogInformation(
+                "ProductId {ProductId} was successfully changed with data: {@ProductDto}",
+                id,
+                dto
+            );
 
             return NoContent();
         }

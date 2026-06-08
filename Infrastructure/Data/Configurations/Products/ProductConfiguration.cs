@@ -16,17 +16,20 @@ namespace Infrastructure.Data.Configurations.Products
             builder.Property(pr => pr.Name).HasMaxLength(100);
             builder.Property(pr => pr.Price).HasPrecision(18, 2);
 
-            builder.HasMany(pr => pr.Tags)
-                .WithMany(t => t.Products);
+            builder.HasMany(pr => pr.Tags).WithMany(t => t.Products);
 
-            builder.HasOne(pr => pr.Category)
+            builder
+                .HasOne(pr => pr.Category)
                 .WithMany(c => c.Products)
                 .HasForeignKey(pr => pr.CategoryId);
 
-            builder.OwnsOne(p => p.ProductSeo, seoBuilder =>
-            {
-                seoBuilder.Property(s => s.MetaTitle).HasMaxLength(100);
-            });
+            builder.OwnsOne(
+                p => p.MetaData,
+                seoBuilder =>
+                {
+                    seoBuilder.Property(s => s.MetaTitle).HasMaxLength(100);
+                }
+            );
         }
     }
 }

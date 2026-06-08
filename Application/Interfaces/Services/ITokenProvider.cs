@@ -1,6 +1,6 @@
-﻿using Domain.Models.Auth;
+﻿using System.Security.Claims;
+using Domain.Models.Auth;
 using Domain.Results;
-using System.Security.Claims;
 
 namespace Application.Interfaces.Services
 {

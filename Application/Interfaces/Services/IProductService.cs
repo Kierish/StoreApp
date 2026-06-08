@@ -4,7 +4,7 @@ using Domain.Results;
 
 namespace Application.Interfaces.Services
 {
-    public interface IProductService 
+    public interface IProductService
     {
         Task<PagedList<ProductReadDto>> GetAllAsync(PageParameters pageParameters);
         Task<Result<ProductReadDto>> GetByIdAsync(Guid id);

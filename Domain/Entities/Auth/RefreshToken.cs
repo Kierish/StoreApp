@@ -12,6 +12,6 @@ namespace Domain.Models.Auth
         public required DateTime DateAdded { get; set; }
         public required DateTime DateExpire { get; set; }
         public Guid UserId { get; set; }
-        public required ApplicationUser User { get; set; }   
+        public required ApplicationUser User { get; set; }
     }
 }

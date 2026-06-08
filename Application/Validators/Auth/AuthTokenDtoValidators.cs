@@ -5,13 +5,11 @@ namespace StoreApi.Validators.Auth
 {
     public class AuthRequestDtoValidator : AbstractValidator<AuthRequestDto>
     {
-        public AuthRequestDtoValidator() 
+        public AuthRequestDtoValidator()
         {
-            RuleFor(d => d.RefreshToken)
-                .NotEmpty();
+            RuleFor(d => d.RefreshToken).NotEmpty();
 
-            RuleFor(d => d.JwtToken)
-                .NotEmpty();
+            RuleFor(d => d.JwtToken).NotEmpty();
         }
     }
 }

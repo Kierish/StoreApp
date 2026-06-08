@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using System;
 
 namespace Infrastructure.Data
 {
@@ -8,12 +8,14 @@ namespace Infrastructure.Data
     {
         public AppDbContext CreateDbContext(string[] args)
         {
-            var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
-                                ?? Environment.GetEnvironmentVariable("ConnectionStrings:DefaultConnection");
+            var connectionString =
+                Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
+                ?? Environment.GetEnvironmentVariable("ConnectionStrings:DefaultConnection");
 
             if (string.IsNullOrEmpty(connectionString))
             {
-                connectionString = "Server=fake;Database=fake;User Id=fake;Password=fake;TrustServerCertificate=True;";
+                connectionString =
+                    "Server=DESKTOP-R55LQGD; Database=StoreDb; Trusted_Connection=True; TrustServerCertificate=True;";
             }
 
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();

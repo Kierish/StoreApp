@@ -14,7 +14,8 @@ namespace Infrastructure.Data.Configurations.Auth
             builder.Property(r => r.Token).IsRequired();
             builder.Property(r => r.JwtId).IsRequired();
 
-            builder.HasOne(r => r.User)
+            builder
+                .HasOne(r => r.User)
                 .WithMany()
                 .HasForeignKey(r => r.UserId)
                 .OnDelete(DeleteBehavior.Cascade);

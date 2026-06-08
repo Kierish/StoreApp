@@ -14,7 +14,7 @@ namespace Application.Mappers.Auth
                 Email = dto.Email,
                 PhoneNumber = dto.PhoneNumber,
                 PasswordHash = hashedPassword,
-                Role = UserRoles.Customer
+                Role = UserRoles.Customer,
             };
         }
     }

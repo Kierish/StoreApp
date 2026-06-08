@@ -14,9 +14,11 @@ namespace Application.Services
         private readonly ITokenProvider _tokenProvider;
         private readonly IPasswordHasher _passwordHasher;
 
-        public AccountService(IAccountRepository repo,
+        public AccountService(
+            IAccountRepository repo,
             ITokenProvider tokenProvider,
-            IPasswordHasher passwordHasher)
+            IPasswordHasher passwordHasher
+        )
         {
             _repo = repo;
             _tokenProvider = tokenProvider;
@@ -57,7 +59,7 @@ namespace Application.Services
             var newUser = dto.ToEntity(hashedPassword);
 
             _repo.AddUser(newUser);
-            
+
             return Result<AuthResponseDto>.Success(await GenerateAndSaveTokensAsync(newUser));
         }
 
@@ -71,8 +73,10 @@ namespace Application.Services
             var existingRefreshToken = validationResult.Data!;
 
             _repo.RemoveRefreshToken(existingRefreshToken);
-            
-            return Result<AuthResponseDto>.Success(await GenerateAndSaveTokensAsync(existingRefreshToken.User));
+
+            return Result<AuthResponseDto>.Success(
+                await GenerateAndSaveTokensAsync(existingRefreshToken.User)
+            );
         }
 
         private async Task<AuthResponseDto> GenerateAndSaveTokensAsync(ApplicationUser user)
@@ -101,14 +105,16 @@ namespace Application.Services
 
             // Check 3: Jwt expiry date
             var expiryDateUnix = long.Parse(principal.Claims.Single(c => c.Type == "exp").Value);
-            var expiryDateUtc = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(expiryDateUnix);
+            var expiryDateUtc = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(
+                expiryDateUnix
+            );
 
             if (expiryDateUtc > DateTime.UtcNow)
                 return Result<RefreshToken>.Failure(AuthErrors.TokenNotExpired());
 
             var jti = principal.Claims.Single(c => c.Type == "jti").Value;
 
-            // Check 4: Refresh Token existence 
+            // Check 4: Refresh Token existence
             var existingRefreshToken = await _repo.GetRefreshTokenAsync(dto.RefreshToken);
 
             if (existingRefreshToken is null)

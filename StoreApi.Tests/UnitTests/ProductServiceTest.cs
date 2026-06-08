@@ -11,11 +11,12 @@ namespace StoreApi.Tests.UnitTests
     public class ProductServiceTest
     {
         [Fact]
-        public async Task GetByIdAsync_WhenRepositoryReturnNull_ReturnsFailureResult() 
+        public async Task GetByIdAsync_WhenRepositoryReturnNull_ReturnsFailureResult()
         {
             var mockRepo = new Mock<IProductRepository>();
             var myGuid = Guid.NewGuid();
-            mockRepo.Setup(s => s.GetProductByIdAsync(It.IsAny<Guid>()))
+            mockRepo
+                .Setup(s => s.GetProductByIdAsync(It.IsAny<Guid>()))
                 .ReturnsAsync((Product?)null);
 
             var sut = new ProductService(mockRepo.Object);
@@ -29,21 +30,22 @@ namespace StoreApi.Tests.UnitTests
         }
 
         [Fact]
-        public async Task DeleteAsync_WhenProductExists_ReturnsSuccessResult() 
+        public async Task DeleteAsync_WhenProductExists_ReturnsSuccessResult()
         {
             var fixture = new Fixture();
             var mockRepo = new Mock<IProductRepository>();
             var targetId = Guid.NewGuid();
 
-            var existingProduct = fixture.Build<Product>()
+            var existingProduct = fixture
+                .Build<Product>()
                 .With(p => p.Id, targetId)
                 .With(p => p.Price, 10.0m)
                 .Without(p => p.Tags)
                 .Without(p => p.Category)
-                .Without(p => p.ProductSeo).Create();
+                .Without(p => p.MetaData)
+                .Create();
 
-            mockRepo.Setup(s => s.GetProductByIdAsync(targetId))
-                .ReturnsAsync(existingProduct);
+            mockRepo.Setup(s => s.GetProductByIdAsync(targetId)).ReturnsAsync(existingProduct);
 
             var sut = new ProductService(mockRepo.Object);
 
@@ -56,30 +58,43 @@ namespace StoreApi.Tests.UnitTests
         }
 
         [Fact]
-        public async Task UpdateAsync_WhenTagsNotContainedInDb_ReturnsFailureResult() 
+        public async Task UpdateAsync_WhenTagsNotContainedInDb_ReturnsFailureResult()
         {
             var fixture = new Fixture();
             var mockRepo = new Mock<IProductRepository>();
             var myGuid = Guid.NewGuid();
 
-            var existingProduct = fixture.Build<Product>()
+            var existingProduct = fixture
+                .Build<Product>()
                 .With(p => p.Id, myGuid)
                 .With(p => p.Price, 10.0m)
-                .With(p => p.Tags, new List<Tag> { new Tag { Name = "Name1" }, new Tag { Name = "Name2" } })
+                .With(
+                    p => p.Tags,
+                    new List<Tag>
+                    {
+                        new Tag { Name = "Name1" },
+                        new Tag { Name = "Name2" },
+                    }
+                )
                 .Without(p => p.Category)
-                .Without(p => p.ProductSeo).Create();
+                .Without(p => p.MetaData)
+                .Create();
 
-            mockRepo.Setup(s => s.GetProductByIdAsync(myGuid))
-                .ReturnsAsync(existingProduct);
+            mockRepo.Setup(s => s.GetProductByIdAsync(myGuid)).ReturnsAsync(existingProduct);
 
-            var changedProductDto = new ProductUpdateDto(null,
-                TagNames: new List<string>() { "Name2", "Name3" }, null, null, null);
+            var changedProductDto = new ProductUpdateDto(
+                null,
+                TagNames: new List<string>() { "Name2", "Name3" },
+                null,
+                null,
+                null
+            );
 
-            mockRepo.Setup(s => s.GetTagsContainedInDto(changedProductDto.TagNames!))
+            mockRepo
+                .Setup(s => s.GetTagsContainedInDto(changedProductDto.TagNames!))
                 .ReturnsAsync(new List<Tag>() { new Tag { Name = "Name2" } });
 
-            mockRepo.Setup(s => s.IsTagIdsInDb(changedProductDto.TagNames!))
-                .ReturnsAsync(false);
+            mockRepo.Setup(s => s.IsTagIdsInDb(changedProductDto.TagNames!)).ReturnsAsync(false);
 
             var sut = new ProductService(mockRepo.Object);
 

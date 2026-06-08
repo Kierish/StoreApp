@@ -3,23 +3,24 @@ using FluentValidation;
 
 namespace StoreApi.Validators.Products
 {
-    public class ProductSeoCreateDtoValidator : AbstractValidator<ProductSeoCreateDto>
+    public class PageMetadataCreateDtoValidator : AbstractValidator<PageMetadataCreateDto>
     {
-        public ProductSeoCreateDtoValidator()
+        public PageMetadataCreateDtoValidator()
         {
             RuleFor(d => d.MetaTitle).NotEmpty().MaximumLength(100);
 
-            RuleFor(d => d.OpenGraphImageUrl).NotEmpty()
+            RuleFor(d => d.OpenGraphImageUrl)
+                .NotEmpty()
                 .Must(uri => Uri.TryCreate(uri, UriKind.Absolute, out _))
                 .WithMessage("OpenGraphImageUrl must be a valid absolute URL.");
         }
     }
-    public class ProductSeoUpdateDtoValidator : AbstractValidator<ProductSeoUpdateDto>
+
+    public class PageMetadataUpdateDtoValidator : AbstractValidator<PageMetadataUpdateDto>
     {
-        public ProductSeoUpdateDtoValidator()
+        public PageMetadataUpdateDtoValidator()
         {
-            RuleFor(d => d.MetaTitle).MaximumLength(60)
-                .When(d => d.MetaTitle != null);
+            RuleFor(d => d.MetaTitle).MaximumLength(60).When(d => d.MetaTitle != null);
 
             RuleFor(d => d.OpenGraphImageUrl)
                 .Must(uri => Uri.TryCreate(uri, UriKind.Absolute, out _))
