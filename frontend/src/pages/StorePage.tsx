@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import '../App.css';
-import { Navbar } from '../components/Navbar';
-import { Sidebar } from '../components/Sidebar';
-import { Pagination } from '../components/Pagination';
-import { type ProductReadDto, ProductCard } from '../components/ProductCard';
+import { Navbar } from '../components/Navbar/Navbar';
+import { Sidebar } from '../components/Sidebar/Sidebar';
+import { Pagination } from '../components/Pagination/Pagination';
+import { ProductCard } from '../components/ProductCard/ProductCard';
+import type { ProductReadDto } from '../types/product';
 import { useSearchParams } from 'react-router-dom';
 
 

@@ -1,0 +1,120 @@
+/* src/pages/Auth.module.css */
+
+.wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px;
+  font-family: sans-serif;
+  min-height: 80vh;
+}
+
+.card {
+  background-color: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.backLink {
+  text-decoration: none;
+  color: #5b01ab;
+  font-weight: bold;
+  font-size: 0.9rem;
+  transition: color 0.2s ease;
+}
+
+.backLink:hover {
+  color: #3b0070;
+}
+
+.title {
+  font-size: 1.8rem;
+  color: #333;
+  margin: 20px 0 10px 0;
+  text-align: center;
+}
+
+.subtitle {
+  color: #666;
+  font-size: 0.95rem;
+  margin: 0 0 30px 0;
+  text-align: center;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.inputGroup {
+  text-align: left;
+}
+
+.label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: #555;
+}
+
+.input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 1rem;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input:focus {
+  border-color: #5b01ab;
+  box-shadow: 0 0 0 3px rgba(91, 1, 171, 0.15);
+}
+
+.button {
+  background-color: #5b01ab;
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  box-shadow: 0 4px 12px rgba(91, 1, 171, 0.25);
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.button:hover {
+  background-color: #4a008f;
+}
+
+.button:active {
+  transform: scale(0.98);
+}
+
+.footerText {
+  color: #555;
+  font-size: 0.95rem;
+  margin-top: 24px;
+  text-align: center;
+}
+
+.footerLink {
+  color: #5b01ab;
+  font-weight: bold;
+  text-decoration: none;
+  margin-left: 4px;
+}
+
+.footerLink:hover {
+  text-decoration: underline;
+}

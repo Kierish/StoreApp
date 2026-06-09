@@ -1,0 +1,23 @@
+.sidebar {
+  width: 260px;
+  background-color: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  height: fit-content;
+  flex-shrink: 0;
+}
+
+.title {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+  margin: 0 0 15px 0;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.placeholder {
+  color: #888;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}

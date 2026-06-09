@@ -1,0 +1,109 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #5b01ab;
+  padding: 15px 40px;
+  box-shadow: 0 4px 15px rgba(91, 1, 171, 0.15);
+  margin-bottom: 30px;
+  box-sizing: border-box;
+}
+
+.logo {
+  color: #ffffff;
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.searchContainer {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.searchInput {
+  width: 380px;
+  padding: 10px 40px 10px 16px;
+  border-radius: 24px;
+  border: none;
+  background-color: white;
+  color: #333;
+  font-size: 0.9rem;
+  outline: none;
+  transition: box-shadow 0.2s ease;
+}
+
+.searchInput:focus {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+.searchIcon {
+  position: absolute;
+  right: 16px;
+  color: #5b01ab;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.cartAction {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 0.95rem;
+}
+
+.cartIcon {
+  font-size: 1.3rem;
+}
+
+.cartBadge {
+  background-color: #ffffff;
+  color: #5b01ab;
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+
+.loginLink {
+  text-decoration: none;
+}
+
+.loginButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: #5b01ab;
+  font-weight: bold;
+  font-size: 0.95rem;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  background-color: white;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.loginButton:hover {
+  background-color: #f0f0f0;
+}
+
+.loginButton:active {
+  transform: scale(0.98);
+}
+
+.loginIcon {
+  font-size: 1.1rem;
+}
