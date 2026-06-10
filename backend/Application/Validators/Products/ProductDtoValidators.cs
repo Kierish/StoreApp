@@ -11,9 +11,9 @@ namespace StoreApi.Validators.Products
 
             RuleFor(d => d.Price).NotNull().GreaterThan(0);
 
-            RuleFor(d => d.ProductSeo)
+            RuleFor(d => d.PageMetadata)
                 .SetValidator(metadataValidator!)
-                .When(d => d.ProductSeo != null);
+                .When(d => d.PageMetadata != null);
         }
     }
 
@@ -25,9 +25,9 @@ namespace StoreApi.Validators.Products
 
             RuleFor(d => d.Price).GreaterThan(0).When(d => d.Price != null);
 
-            RuleFor(d => d.ProductSeo)
+            RuleFor(d => d.PageMetadata)
                 .SetValidator(metadataValidator!)
-                .When(d => d.ProductSeo != null);
+                .When(d => d.PageMetadata != null);
         }
     }
 }

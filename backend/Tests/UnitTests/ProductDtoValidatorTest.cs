@@ -33,11 +33,11 @@ namespace StoreApi.Tests.UnitTests
                 .Build<PageMetadataUpdateDto>()
                 .With(s => s.OpenGraphImageUrl, " ")
                 .Create();
-            var dto = fixture.Build<ProductUpdateDto>().With(d => d.ProductSeo, seo).Create();
+            var dto = fixture.Build<ProductUpdateDto>().With(d => d.PageMetadata, seo).Create();
 
             var result = validator.TestValidate(dto);
 
-            result.ShouldHaveValidationErrorFor(v => v.ProductSeo!.OpenGraphImageUrl);
+            result.ShouldHaveValidationErrorFor(v => v.PageMetadata!.OpenGraphImageUrl);
         }
     }
 }

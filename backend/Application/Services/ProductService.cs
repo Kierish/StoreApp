@@ -57,7 +57,7 @@ namespace Application.Services
                 newProduct.Tags = await _repo.GetTagsContainedInDto(dto.TagNames);
             }
 
-            newProduct.MetaData = dto.ProductSeo?.ToEntity();
+            newProduct.MetaData = dto.PageMetadata?.ToEntity();
 
             _repo.AddProduct(newProduct);
             await _repo.SaveChangesAsync();
@@ -101,15 +101,15 @@ namespace Application.Services
                 }
             }
 
-            if (dto.ProductSeo is { } seoDto)
+            if (dto.PageMetadata is { } metaDataDto)
             {
-                if (product.MetaData is { } existingSeo)
+                if (product.MetaData is { } existingMetaData)
                 {
-                    seoDto.MapToEntity(existingSeo);
+                    metaDataDto.MapToEntity(existingMetaData);
                 }
                 else
                 {
-                    product.MetaData = seoDto.ToEntity();
+                    product.MetaData = metaDataDto.ToEntity();
                 }
             }
 

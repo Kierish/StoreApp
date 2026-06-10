@@ -1,113 +1,71 @@
-import { useEffect, useState } from 'react'
-import '../App.css';
+import { useSearchParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { Navbar } from '../components/Navbar/Navbar';
 import { Sidebar } from '../components/Sidebar/Sidebar';
 import { Pagination } from '../components/Pagination/Pagination';
 import { ProductCard } from '../components/ProductCard/ProductCard';
 import type { ProductReadDto } from '../types/product';
 import { apiClient } from '../api/apiClient';
-import { useSearchParams } from 'react-router-dom';
+import styles from './StorePage.module.css'; 
 
+const fetchProducts = async (page: number, size: number) => {
+  const response = await apiClient(`/api/Product?Page=${page}&PageSize=${size}`);
+  
+  if (!response.ok) {
+    throw new Error(`The server returned an error: ${response.status} ${response.statusText}`);
+  }
+
+  const products: ProductReadDto[] = await response.json();
+  const paginationHeader = response.headers.get('X-Pagination');
+  const metaData = paginationHeader ? JSON.parse(paginationHeader) : {};
+
+  return { products, metaData };
+};
 
 export function StorePage() {
-  const [products, setProducts] = useState<ProductReadDto[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null); 
-
   const [searchParams, setSearchParams] = useSearchParams();
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
-  const pageSize = parseInt(searchParams.get('size') || '5', 10);
+  const pageSize = parseInt(searchParams.get('size') || '5', 10); 
+
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ['products', currentPage, pageSize], 
+    queryFn: () => fetchProducts(currentPage, pageSize),
+    staleTime: 1000 * 60 * 5, 
+  });
+
   const handlePageChange = (newPage: number) => {
     setSearchParams({ page: newPage.toString(), size: pageSize.toString() });
+    window.scrollTo({ top: 0, behavior: 'smooth' }); 
   };
-  
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalCount, setTotalCount] = useState(1);
-  const [hasNextPage, setHasNextPage] = useState(false);
-  const [hasPreviousPage, setHasPreviousPage] = useState(false);
-
-  useEffect(() => {
-    async function loadProducts() {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const response = await apiClient(`/api/Product?Page=${currentPage}&pageSize=${pageSize}`);
-        
-        if (response.ok) {
-          const data = await response.json();
-          setProducts(data);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-
-          const paginationHeader = response.headers.get('X-Pagination');
-          if (paginationHeader){
-            const metaData = JSON.parse(paginationHeader);
-
-            setTotalPages(metaData.TotalPages ?? 0);
-            setTotalCount(metaData.TotalCount ?? 0);
-            setHasNextPage(metaData.HasNextPage ?? false);
-            setHasPreviousPage(metaData.HasPreviousPage ?? false);  
-          }
-        } else {
-          setError(`The server returned an error: ${response.status} ${response.statusText}`);
-        }
-      } catch (error) {
-        setError("Could not connect to the backend server.");
-        console.error("Fetch failed", error);
-      } finally {
-        setIsLoading(false); 
-      }
-    }
-
-    loadProducts();
-  }, [currentPage, pageSize]);
 
   return (
-    <div style={{ backgroundColor: '#f3eff7', minHeight: '100vh' }}>
-      
+    <div className={styles.pageContainer}>
       <Navbar />
 
-      <div style={{ 
-        display: 'flex', 
-        width: '100%', 
-        padding: '0 40px 40px 40px', 
-        boxSizing: 'border-box', 
-        gap: '24px' 
-      }}>
+      <div className={styles.layout}>
         <Sidebar />
 
-        <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <main className={styles.mainContent}>
           {isLoading ? (
-            <p style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
-              Loading products...
-            </p>
-          ) : error ? (
-            <div style={{ 
-              textAlign: 'center', 
-              padding: '40px', 
-              backgroundColor: 'white', 
-              borderRadius: '12px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-              border: '1px solid #f5c6cb',
-              color: '#721c24'
-            }}>
-              <p style={{ fontSize: '1.4rem', fontWeight: 'bold', margin: '0 0 10px 0' }}>
-                ⚠️ Connection Failed
-              </p>
-              <p style={{ margin: '0 0 5px 0', fontSize: '0.95rem' }}>{error}</p>
+            <p className={styles.loadingText}>Loading products...</p>
+          ) : isError ? (
+            <div className={styles.errorCard}>
+              <p className={styles.errorTitle}>⚠️ Connection Failed</p>
+              <p className={styles.errorText}>{(error as Error).message}</p>
             </div>
           ) : (
             <>
-              {products.map((p) => (
+              {data?.products.map((p) => (
                 <ProductCard key={p.id} product={p} />
               ))}
 
               <Pagination
                 currentPage={currentPage}
-                pageSize={3}
-                totalPages={totalPages}
-                totalCount={totalCount}
-                hasNextPage={hasNextPage}
-                hasPreviousPage={hasPreviousPage}
+                pageSize={pageSize}
+                totalPages={data?.metaData?.TotalPages ?? 1}
+                totalCount={data?.metaData?.TotalCount ?? 0}
+                hasNextPage={data?.metaData?.HasNextPage ?? false}
+                hasPreviousPage={data?.metaData?.HasPreviousPage ?? false}
                 onPageChange={handlePageChange}
               />
             </>
@@ -118,4 +76,4 @@ export function StorePage() {
   );
 }
 
-export default StorePage
+export default StorePage;
