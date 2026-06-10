@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../../api/apiClient';
-import type { ProductReadDto } from '../../types/product';
+import type { ProductCreateDto, ProductReadDto } from '../../types/product';
 
 export function useCreateProduct() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: any): Promise<ProductReadDto> => {
+    mutationFn: async (data: ProductCreateDto): Promise<ProductReadDto> => {
       const response = await apiClient('/api/Product', {
         method: 'POST',
         body: JSON.stringify(data),

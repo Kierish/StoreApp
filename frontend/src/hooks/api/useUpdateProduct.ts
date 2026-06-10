@@ -1,11 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../../api/apiClient';
+import type { ProductUpdateDto } from '../../types/product';
 
 export function useUpdateProduct() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+    mutationFn: async ({ id, data }: { id: string; data: ProductUpdateDto }) => {
       const response = await apiClient(`/api/Product/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data),

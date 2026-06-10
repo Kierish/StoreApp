@@ -5,6 +5,9 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useProduct } from '../../hooks/api/useProduct';
 import { useUpdateProduct } from '../../hooks/api/useUpdateProduct';
 import styles from './EditProductPage.module.css';
+import { useCategories } from '../../hooks/api/useCategories';
+import { useTags } from '../../hooks/api/useTags';
+import type { ProductCreateDto } from '../../types/product';
 
 const DEFAULT_IMAGE_URL = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=500&q=80';
 
@@ -15,11 +18,13 @@ export function EditProductPage() {
   
   const { data: product, isLoading, isError } = useProduct(id);
   const updateMutation = useUpdateProduct();
+  const { data: categories, isLoading: isLoadingCategories } = useCategories();
+  const { data: tagsData, isLoading: isLoadingTags } = useTags();
 
   const [name, setName] = useState('');
   const [categoryName, setCategoryName] = useState('');
   const [price, setPrice] = useState<string>('');
-  const [tags, setTags] = useState('');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [metaTitle, setMetaTitle] = useState('');
   const [metaDescription, setMetaDescription] = useState('');
   const [imageUrl, setImageUrl] = useState('');
@@ -29,7 +34,7 @@ export function EditProductPage() {
       setName(product.name || '');
       setCategoryName(product.categoryName || '');
       setPrice(product.price ? product.price.toString() : '');
-      setTags(product.tagNames?.join(', ') || '');
+      setSelectedTags(product.tagNames || []);
       setMetaTitle(product.pageMetadata?.metaTitle || '');
       setMetaDescription(product.pageMetadata?.metaDescription || '');
       setImageUrl(product.pageMetadata?.openGraphImageUrl || '');
@@ -58,20 +63,15 @@ export function EditProductPage() {
     e.preventDefault();
     if (!id) return;
 
-    const tagArray = tags
-      .split(',')
-      .map(tag => tag.trim())
-      .filter(tag => tag.length > 0);
-
     const finalImageUrl = imageUrl.trim() || DEFAULT_IMAGE_URL;
 
-    const updateData = {
-      name: name || undefined,
-      categoryName: categoryName || undefined,
-      price: price ? Number(price) : undefined,
-      tagNames: tagArray.length > 0 ? tagArray : undefined,
+     const updateData: ProductCreateDto = {
+      name,
+      categoryName,
+      price: Number(price),
+      tagNames: selectedTags.length > 0 ? selectedTags : undefined,
       pageMetadata: {
-        metaTitle: metaTitle || undefined,
+        metaTitle,
         metaDescription: metaDescription || undefined,
         openGraphImageUrl: finalImageUrl,
       }
@@ -130,26 +130,57 @@ export function EditProductPage() {
 
             <div className={styles.row}>
               <div className={styles.formGroup}>
-                <label className={styles.label}>Category Name</label>
-                <input 
-                  type="text" 
+                <label className={styles.label}>Category</label>
+                <select 
                   className={styles.input} 
                   value={categoryName} 
                   onChange={e => setCategoryName(e.target.value)} 
                   required 
-                />
-                <span className={styles.helperText}>Must exist in database (e.g., "Electronics", "Accessories")</span>
-              </div>
+                  disabled={isLoadingCategories}
+                >
+                  <option value="" disabled>
+                    {isLoadingCategories ? 'Loading categories...' : 'Choose a category...'}
+                  </option>
+                  {categories?.map(category => (
+                    <option key={category.id} value={category.name}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+                {isLoadingCategories && <span className={styles.helperText}>Loading categories list from server...</span>}
+              </div>  
 
               <div className={styles.formGroup}>
                 <label className={styles.label}>Tags</label>
-                <input 
-                  type="text" 
-                  className={styles.input} 
-                  value={tags} 
-                  onChange={e => setTags(e.target.value)} 
-                />
-                <span className={styles.helperText}>Comma separated (e.g., "Wireless, Gaming")</span>
+                <div className={styles.tagsContainer}>
+                  {isLoadingTags ? (
+                    <span className={styles.helperText}>Loading tags...</span>
+                  ) : (
+                    tagsData?.map(tag => {
+                      const isChecked = selectedTags.includes(tag.name);
+                      return (
+                        <label 
+                          key={tag.id} 
+                          className={`${styles.tagPill} ${isChecked ? styles.tagPillActive : ''}`}
+                        >
+                          <input 
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => {
+                              setSelectedTags(prev => 
+                                prev.includes(tag.name)
+                                  ? prev.filter(t => t !== tag.name)
+                                  : [...prev, tag.name]
+                              );
+                            }}
+                            style={{ display: 'none' }}
+                          />
+                          #{tag.name}
+                        </label>
+                      );
+                    })
+                  )}
+                </div>
               </div>
             </div>
 

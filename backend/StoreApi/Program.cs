@@ -1,6 +1,4 @@
-using System.Globalization;
-using System.Reflection;
-using System.Text;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
 using Application.Repositories;
 using Application.Services;
@@ -22,6 +20,9 @@ using StoreApi.Infrastructure.Exceptions;
 using StoreApi.Infrastructure.Filters;
 using StoreApi.Infrastructure.Middlewares;
 using StoreApi.Infrastructure.Swagger;
+using System.Globalization;
+using System.Reflection;
+using System.Text;
 
 var cultureInfo = new CultureInfo("en-US");
 CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
@@ -78,6 +79,14 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(conn
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 builder.Services.AddScoped<IProductService, ProductService>();
+
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+
+builder.Services.AddScoped<ITagRepository, TagRepository>();
+
+builder.Services.AddScoped<ITagService, TagService>();
 
 builder.Services.AddScoped<ITokenProvider, TokenProvider>();
 

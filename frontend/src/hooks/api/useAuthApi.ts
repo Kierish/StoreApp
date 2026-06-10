@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { apiClient } from '../../api/apiClient';
+import type { LoginDataDto, RegisterDataDto, AuthResponseDto } from '../../types/auth';
 
 const parseAuthError = async (response: Response) => {
   const data = await response.json();
@@ -12,7 +13,7 @@ const parseAuthError = async (response: Response) => {
 
 export function useLogin() {
   return useMutation({
-    mutationFn: async (credentials: any) => {
+    mutationFn: async (credentials: LoginDataDto): Promise<AuthResponseDto> => {
       const response = await apiClient("/api/auth/login-user", {
         method: "POST",
         body: JSON.stringify(credentials),
@@ -26,7 +27,7 @@ export function useLogin() {
 
 export function useRegister() {
   return useMutation({
-    mutationFn: async (userData: any) => {
+    mutationFn: async (userData: RegisterDataDto): Promise<AuthResponseDto> => {
       const response = await apiClient("/api/auth/register-user", {
         method: "POST",
         body: JSON.stringify(userData),

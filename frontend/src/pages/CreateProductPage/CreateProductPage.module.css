@@ -116,3 +116,40 @@
   font-size: 0.9rem;
   margin-bottom: 15px;
 }
+
+.tagsContainer {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.tagPill {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  color: #444;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  user-select: none;
+  transition: all 0.15s ease;
+}
+
+.tagPill:hover {
+  border-color: #5b01ab;
+  background-color: #fafafa;
+}
+
+.tagPillActive {
+  background-color: #5b01ab;
+  border-color: #5b01ab;
+  color: #ffffff;
+}
+
+.tagPillActive:hover {
+  background-color: #4a008f;
+}
