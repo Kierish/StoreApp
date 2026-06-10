@@ -59,7 +59,7 @@ namespace StoreApi.Controllers
         /// <response code="200">Successfully retrieved the product.</response>
         /// <response code="404">The requested product was not found.</response>
         [HttpGet("{id}")]
-        [Authorize(Roles = UserRoles.Customer + "," + UserRoles.Employee)]
+        [AllowAnonymous]
         [ProducesResponseType(typeof(ProductReadDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ProductReadDto>> GetProductById(Guid id)
@@ -81,7 +81,7 @@ namespace StoreApi.Controllers
         /// <returns>The newly created product.</returns>
         /// <response code="201">The product was successfully created.</response>
         [HttpPost]
-        [Authorize(Roles = UserRoles.Customer + "," + UserRoles.Employee)]
+        [Authorize(Roles = UserRoles.Employee + "," + UserRoles.Admin)]
         [ProducesResponseType(typeof(ProductReadDto), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ProductReadDto>> AddProduct([FromBody] ProductCreateDto dto)
@@ -110,7 +110,7 @@ namespace StoreApi.Controllers
         /// <response code="204">The product was successfully updated.</response>
         /// <response code="404">The requested product, category, or tags were not found.</response>
         [HttpPut("{id}")]
-        [Authorize(Roles = UserRoles.Customer + "," + UserRoles.Employee)]
+        [Authorize(Roles = UserRoles.Employee + "," + UserRoles.Admin)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] ProductUpdateDto dto)
@@ -138,7 +138,7 @@ namespace StoreApi.Controllers
         /// <response code="204">The product was successfully deleted.</response>
         /// <response code="404">The requested product was not found.</response>
         [HttpDelete("{id}")]
-        [Authorize(Roles = UserRoles.Customer + "," + UserRoles.Employee)]
+        [Authorize(Roles = UserRoles.Employee + "," + UserRoles.Admin)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteProduct(Guid id)

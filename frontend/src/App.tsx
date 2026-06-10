@@ -1,16 +1,16 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'; // <-- Import these
-import StorePage from './pages/StorePage';
-import { LoginPage } from './pages/auth/LoginPage';
-import { RegisterPage } from './pages/auth/RegisterPage';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import StorePage from './pages/StorePage/StorePage';
+import { LoginPage } from './pages/AuthPages/LoginPage';
+import { RegisterPage } from './pages/AuthPages/RegisterPage';
 import { AuthProvider } from './contexts/AuthContext';
+import { ProductPage } from './pages/ProductPage/ProductPage';
 
-// Create a client (the cache memory)
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 1, // If a request fails, try exactly 1 more time before showing an error
-      refetchOnWindowFocus: false, // Don't refetch every time the user clicks on the browser tab
+      retry: 1, 
+      refetchOnWindowFocus: false, 
     },
   },
 });
@@ -23,6 +23,7 @@ function App() {
           <div style={{ backgroundColor: '#f3eff7', minHeight: '100vh' }}>
             <Routes>
               <Route path="/" element={<StorePage />} />
+              <Route path="/product/:id" element={<ProductPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
             </Routes>

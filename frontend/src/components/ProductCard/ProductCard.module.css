@@ -1,4 +1,6 @@
 .card {
+  cursor: pointer;
+  position: relative;
   display: flex;
   flex-direction: row;
   border: 1px solid #e8e8e8;
@@ -136,4 +138,33 @@
 
 .addToCartBtn:active {
   transform: scale(0.97);
+}
+
+.adminActions {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+.tinyBtn {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: all 0.2s;
+  font-size: 0.9rem;
+}
+
+.tinyBtn:hover {
+  background-color: #f3eff7;
+  border-color: #5b01ab;
+  transform: scale(1.1);
 }

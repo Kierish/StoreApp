@@ -1,0 +1,200 @@
+.pageWrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px 40px 60px 40px;
+}
+
+.backLink {
+  display: inline-block;
+  margin-bottom: 24px;
+  color: #5b01ab;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1rem;
+  transition: color 0.2s;
+}
+
+.backLink:hover {
+  color: #3b0070;
+  text-decoration: underline;
+}
+
+.mainCard {
+  display: flex;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  border: 1px solid #e8e8e8;
+  padding: 30px;
+  gap: 40px;
+  margin-bottom: 30px;
+}
+
+.imageSection {
+  flex: 0 0 350px;
+}
+
+.productImage {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.infoSection {
+  flex: 1;
+  border-right: 1px solid #eee;
+  padding-right: 40px;
+}
+
+.productTitle {
+  font-size: 2rem;
+  color: #111;
+  margin: 0 0 10px 0;
+  line-height: 1.2;
+}
+
+.productCategory {
+  color: #666;
+  font-size: 0.95rem;
+  margin-bottom: 20px;
+}
+
+.productDesc {
+  color: #444;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.tags {
+  display: flex;
+  gap: 8px;
+}
+
+.tag {
+  background-color: #f5f5f5; 
+  color: #444;              
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+.actionSection {
+  flex: 0 0 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.priceBox {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 24px;
+}
+
+.priceAmount {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #5b01ab;
+  line-height: 1;
+}
+
+.priceCurrency {
+  font-size: 1.2rem;
+  margin-left: 6px;
+  font-weight: bold;
+}
+
+.addToCartBtn {
+  background-color: #5b01ab; 
+  color: white;
+  border: none;
+  padding: 16px;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  box-shadow: 0 4px 10px rgba(91, 1, 171, 0.2);
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.addToCartBtn:hover {
+  background-color: #4a008f;
+}
+
+.addToCartBtn:active {
+  transform: scale(0.98);
+}
+
+.tabsContainer {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  border: 1px solid #e8e8e8;
+  overflow: hidden;
+}
+
+.tabsHeader {
+  display: flex;
+  border-bottom: 1px solid #eee;
+  background-color: #fafafa;
+}
+
+.tabBtn {
+  flex: 1;
+  padding: 20px;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #555;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+}
+
+.tabBtn:hover {
+  background-color: white;
+  color: #333;
+}
+
+.activeTab {
+  background-color: white;
+  color: #5b01ab;
+  border-bottom: 3px solid #5b01ab;
+}
+
+.tabContent {
+  padding: 40px;
+  color: #444;
+  line-height: 1.6;
+  min-height: 200px;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+  width: 100%;
+}
+
+.btnEdit, .btnDelete {
+  flex: 1; 
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: opacity 0.2s;
+}
+
+.btnEdit:hover, .btnDelete:hover {
+  opacity: 0.85;
+}
+
+.btnEdit { background-color: #007bff; color: white; }
+.btnDelete { background-color: #dc3545; color: white; }
