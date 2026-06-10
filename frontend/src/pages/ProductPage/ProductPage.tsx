@@ -1,24 +1,16 @@
 import { useState } from 'react';
 import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
-import { useQuery, useQueryClient } from '@tanstack/react-query'; 
-import { apiClient } from '../../api/apiClient';
 import { useAuth } from '../../contexts/AuthContext';
 import { Navbar } from '../../components/Navbar/Navbar';
 import { ConfirmModal } from '../../components/Modal/ConfirmModal'; 
-import type { ProductReadDto } from '../../types/product';
 import styles from './ProductPage.module.css';
-
-const fetchProductById = async (id: string): Promise<ProductReadDto> => {
-  const response = await apiClient(`/api/Product/${id}`);
-  if (!response.ok) throw new Error('Product not found');
-  return response.json();
-};
+import { useProduct } from '../../hooks/api/useProduct';
+import { useDeleteProduct } from '../../hooks/api/useDeleteProduct';
 
 export function ProductPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const queryClient = useQueryClient(); 
   const { user } = useAuth();
   
   const [activeTab, setActiveTab] = useState<'info' | 'spec' | 'opinions' | 'faq'>('info');
@@ -27,21 +19,15 @@ export function ProductPage() {
   const previousSearch = location.state?.searchParams || '';
   const backUrl = `/${previousSearch}`;
 
-  const { data: product, isLoading, isError } = useQuery({
-    queryKey: ['product', id],
-    queryFn: () => fetchProductById(id!),
-    enabled: !!id,
-  });
+  const { data: product, isLoading, isError } = useProduct(id);
+
+  const deleteMutation = useDeleteProduct();
 
   const confirmDelete = async () => {
+    if (!id) return;
     try {
-      const response = await apiClient(`/api/Product/${id}`, { method: 'DELETE' });
-      if (response.ok) {
-        queryClient.invalidateQueries({ queryKey: ['products'] }); 
-        navigate(backUrl); 
-      } else {
-        alert('Failed to delete product.');
-      }
+      await deleteMutation.mutateAsync(id); 
+      navigate(backUrl); 
     } catch (error) {
       alert('An error occurred while deleting.');
     } finally {
@@ -92,7 +78,7 @@ export function ProductPage() {
 
             {isEmployee && (
               <div className={styles.actionButtons}>
-                <button className={styles.btnEdit} onClick={() => alert("Update functionality coming next!")}>
+                <button className={styles.btnEdit} onClick={() => navigate(`/product/${id}/edit`)}>
                   Edit
                 </button>
                 <button className={styles.btnDelete} onClick={() => setIsDeleteModalOpen(true)}>
@@ -150,7 +136,7 @@ export function ProductPage() {
         isOpen={isDeleteModalOpen}
         title="Delete Product"
         message={`Are you sure you want to delete "${product.name}"?`}
-        confirmText="Delete"
+        confirmText={deleteMutation.isPending ? "Deleting..." : "Delete"}
         onConfirm={confirmDelete}
         onCancel={() => setIsDeleteModalOpen(false)}
       />

@@ -1,14 +1,12 @@
-// src/pages/StorePage/StorePage.tsx
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Navbar } from '../../components/Navbar/Navbar';
 import { Sidebar } from '../../components/Sidebar/Sidebar'; 
 import { Pagination } from '../../components/Pagination/Pagination';
 import { ProductCard } from '../../components/ProductCard/ProductCard'; 
 import { ConfirmModal } from '../../components/Modal/ConfirmModal'; 
+import { useAuth } from '../../contexts/AuthContext';
 import type { ProductReadDto } from '../../types/product'; 
-
-// Import our new hooks
 import { useProducts } from '../../hooks/api/useProducts';
 import { useDeleteProduct } from '../../hooks/api/useDeleteProduct';
 import styles from './StorePage.module.css'; 
@@ -17,19 +15,19 @@ const PAGE_SIZE = 5;
 
 export function StorePage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
   const rawPage = parseInt(searchParams.get('page') || '1', 10);
   const currentPage = rawPage > 0 ? rawPage : 1; 
 
-  // UI State: Which product is currently selected for deletion in the modal?
   const [productToDelete, setProductToDelete] = useState<ProductReadDto | null>(null);
 
-  // 1. Get data from our custom hook
   const { data, isLoading, isError, error } = useProducts(currentPage);
-  
-  // 2. Get our delete function from our custom hook
   const deleteMutation = useDeleteProduct();
 
-  // Sync URL page params if user types an invalid page manually or pages change
+  const isEmployee = user?.role === 'Employee' || user?.role === 'Admin';
+
   useEffect(() => {
     if (rawPage !== currentPage) {
       setSearchParams({ page: currentPage.toString() }, { replace: true });
@@ -51,7 +49,6 @@ export function StorePage() {
     if (!productToDelete) return;
     
     try {
-      // Execute the mutation hook
       await deleteMutation.mutateAsync(productToDelete.id);
     } catch (e) {
       alert("Error occurred while deleting.");
@@ -77,6 +74,17 @@ export function StorePage() {
             </div>
           ) : (
             <>
+              {isEmployee && (
+                <div className={styles.actionTopBar}>
+                  <button 
+                    onClick={() => navigate('/product/new')}
+                    className={styles.btnAddProduct}
+                  >
+                    + Add New Product
+                  </button>
+                </div>
+              )}
+
               {data?.products.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
                   No products found.
@@ -87,19 +95,19 @@ export function StorePage() {
                     key={p.id} 
                     product={p} 
                     onDeleteClick={(prod) => setProductToDelete(prod)}
-                    onEditClick={(prod) => alert(`Will open edit form for ${prod.name}`)}
+                    onEditClick={(prod) => navigate(`/product/${prod.id}/edit`)}
                   />
                 ))
               )}
 
-              {data?.metaData?.TotalCount > 0 && (
+              {data?.metaData && data.metaData.TotalCount > 0 && (
                 <Pagination
                   currentPage={currentPage}
                   pageSize={PAGE_SIZE}
-                  totalPages={data?.metaData?.TotalPages ?? 1}
-                  totalCount={data?.metaData?.TotalCount ?? 0}
-                  hasNextPage={data?.metaData?.HasNextPage ?? false}
-                  hasPreviousPage={data?.metaData?.HasPreviousPage ?? false}
+                  totalPages={data.metaData.TotalPages ?? 1}
+                  totalCount={data.metaData.TotalCount ?? 0}
+                  hasNextPage={data.metaData.HasNextPage ?? false}
+                  hasPreviousPage={data.metaData.HasPreviousPage ?? false}
                   onPageChange={handlePageChange}
                 />
               )}
@@ -111,8 +119,8 @@ export function StorePage() {
       <ConfirmModal 
         isOpen={productToDelete !== null}
         title="Delete Product"
-        message={`Are you sure you want to permanently delete "${productToDelete?.name}"?`}
-        confirmText={deleteMutation.isPending ? "Deleting..." : "Delete"} // Bonus UI feedback
+        message={`Are you sure you want to delete "${productToDelete?.name}"?`}
+        confirmText={deleteMutation.isPending ? "Deleting..." : "Delete"}
         onConfirm={confirmDelete}
         onCancel={() => setProductToDelete(null)}
       />

@@ -1,7 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { apiClient } from '../../api/apiClient';
 
-// Shared helper to parse backend errors (including FluentValidation errors)
 const parseAuthError = async (response: Response) => {
   const data = await response.json();
   if (data.errors && typeof data.errors === 'object') {

@@ -14,6 +14,6 @@ export function useProduct(id: string | undefined) {
   return useQuery({
     queryKey: ['product', id],
     queryFn: () => fetchProductById(id!),
-    enabled: !!id, // Only fetch if the ID actually exists
+    enabled: !!id, 
   });
 }

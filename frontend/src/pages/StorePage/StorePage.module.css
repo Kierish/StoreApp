@@ -44,3 +44,29 @@
   margin: 0 0 5px 0;
   font-size: 0.95rem;
 }
+
+.actionTopBar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.btnAddProduct {
+  background-color: #5b01ab;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(91, 1, 171, 0.2);
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btnAddProduct:hover {
+  background-color: #4a008f;
+}
+
+.btnAddProduct:active {
+  transform: scale(0.98);
+}

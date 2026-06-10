@@ -26,7 +26,6 @@ export function LoginPage() {
       
       navigate("/");
     } catch (err) {
-      // Error is automatically handled and displayed by loginMutation.isError
       console.error("Login failed:", err);
     }
   };

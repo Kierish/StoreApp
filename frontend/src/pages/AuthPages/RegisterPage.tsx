@@ -28,7 +28,6 @@ export function RegisterPage() {
 
       navigate("/");
     } catch (err) {
-      // Error is automatically handled and displayed by registerMutation.isError
       console.error("Registration failed:", err);
     }
   };

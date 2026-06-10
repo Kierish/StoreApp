@@ -5,6 +5,8 @@ import { LoginPage } from './pages/AuthPages/LoginPage';
 import { RegisterPage } from './pages/AuthPages/RegisterPage';
 import { AuthProvider } from './contexts/AuthContext';
 import { ProductPage } from './pages/ProductPage/ProductPage';
+import { EditProductPage } from './pages/EditProductPage/EditProductPage';
+import { CreateProductPage } from './pages/CreateProductPage/CreateProductPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,6 +26,8 @@ function App() {
             <Routes>
               <Route path="/" element={<StorePage />} />
               <Route path="/product/:id" element={<ProductPage />} />
+              <Route path="/product/new" element={<CreateProductPage />} />
+              <Route path="/product/:id/edit" element={<EditProductPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
             </Routes>
