@@ -1,51 +1,35 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "./Auth.module.css";
-import { apiClient } from "../../api/apiClient";
 import { setTokens } from "../../utils/token";
 import { useAuth } from "../../contexts/AuthContext";
+import { useRegister } from "../../hooks/api/useAuthApi";
 
 export function RegisterPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
+  
   const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const registerMutation = useRegister();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setIsLoading(true);
 
     try {
-      const response = await apiClient("/api/auth/register-user", {
-        method: "POST",
-        body: JSON.stringify({ userName, email, phoneNumber, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        if (data.errors && typeof data.errors === 'object') {
-          const firstErrorKey = Object.keys(data.errors)[0];
-          throw new Error(data.errors[firstErrorKey][0]);
-        }
-        throw new Error(data.detail || "Registration failed.");
-      }
+      const data = await registerMutation.mutateAsync({ userName, email, phoneNumber, password });
 
       setTokens(data.token, data.refreshToken);
       login(data.token);
 
       navigate("/");
-    } catch (err: any) {
-      setError(err.message || "An unexpected error occurred.");
-    } finally {
-      setIsLoading(false);
+    } catch (err) {
+      // Error is automatically handled and displayed by registerMutation.isError
+      console.error("Registration failed:", err);
     }
   };
 
@@ -61,9 +45,9 @@ export function RegisterPage() {
         <h2 className={styles.title}>Create Account</h2>
         <p className={styles.subtitle}>Register to start shopping with us.</p>
 
-        {error && (
+        {registerMutation.isError && (
           <div style={{ color: '#721c24', backgroundColor: '#f8d7da', padding: '10px', borderRadius: '6px', marginBottom: '15px', fontSize: '0.9rem' }}>
-            {error}
+            {registerMutation.error.message}
           </div>
         )}
 
@@ -127,8 +111,8 @@ export function RegisterPage() {
             </div>
           </div>
 
-          <button type="submit" className={styles.button} disabled={isLoading}>
-            {isLoading ? "Signing Up..." : "Sign Up"}
+          <button type="submit" className={styles.button} disabled={registerMutation.isPending}>
+            {registerMutation.isPending ? "Signing Up..." : "Sign Up"}
           </button>
         </form>
 

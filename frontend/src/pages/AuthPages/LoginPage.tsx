@@ -1,44 +1,33 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "./Auth.module.css";
-import { apiClient } from "../../api/apiClient";
 import { setTokens } from "../../utils/token";
 import { useAuth } from "../../contexts/AuthContext";
+import { useLogin } from "../../hooks/api/useAuthApi";
 
 export function LoginPage() {
   const navigate = useNavigate();
   const { login } = useAuth(); 
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const loginMutation = useLogin();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setIsLoading(true);
 
     try {
-      const response = await apiClient("/api/auth/login-user", {
-        method: "POST",
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.detail || "Invalid email or password.");
-      }
-
+      const data = await loginMutation.mutateAsync({ email, password });
+      
       setTokens(data.token, data.refreshToken);
       login(data.token);
       
       navigate("/");
-    } catch (err: any) {
-      setError(err.message || "An unexpected error occurred.");
-    } finally {
-      setIsLoading(false);
+    } catch (err) {
+      // Error is automatically handled and displayed by loginMutation.isError
+      console.error("Login failed:", err);
     }
   };
 
@@ -54,9 +43,9 @@ export function LoginPage() {
         <h2 className={styles.title}>Welcome Back</h2>
         <p className={styles.subtitle}>Please sign in to your account.</p>
 
-        {error && (
+        {loginMutation.isError && (
           <div style={{ color: '#721c24', backgroundColor: '#f8d7da', padding: '10px', borderRadius: '6px', marginBottom: '15px', fontSize: '0.9rem' }}>
-            {error}
+            {loginMutation.error.message}
           </div>
         )}
 
@@ -96,8 +85,8 @@ export function LoginPage() {
             </div>
           </div>
 
-          <button type="submit" className={styles.button} disabled={isLoading}>
-            {isLoading ? "Signing In..." : "Sign In"}
+          <button type="submit" className={styles.button} disabled={loginMutation.isPending}>
+            {loginMutation.isPending ? "Signing In..." : "Sign In"}
           </button>
         </form>
 
