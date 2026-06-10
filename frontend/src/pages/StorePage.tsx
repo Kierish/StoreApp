@@ -5,10 +5,11 @@ import { Sidebar } from '../components/Sidebar/Sidebar';
 import { Pagination } from '../components/Pagination/Pagination';
 import { ProductCard } from '../components/ProductCard/ProductCard';
 import type { ProductReadDto } from '../types/product';
+import { apiClient } from '../api/apiClient';
 import { useSearchParams } from 'react-router-dom';
 
 
-export function App() {
+export function StorePage() {
   const [products, setProducts] = useState<ProductReadDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null); 
@@ -30,7 +31,7 @@ export function App() {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/Product?Page=${currentPage}`); 
+        const response = await apiClient(`/api/Product?Page=${currentPage}&pageSize=${pageSize}`);
         
         if (response.ok) {
           const data = await response.json();
@@ -117,4 +118,4 @@ export function App() {
   );
 }
 
-export default App
+export default StorePage
