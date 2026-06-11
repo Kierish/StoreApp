@@ -1,7 +1,8 @@
-﻿using System.Reflection;
+﻿using Domain.Entities;
 using Domain.Models.Auth;
 using Domain.Models.Products;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 namespace Infrastructure.Data
 {
@@ -15,6 +16,7 @@ namespace Infrastructure.Data
         public DbSet<Tag> Tags { get; set; }
         public DbSet<ApplicationUser> Users { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<Comment> Comments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

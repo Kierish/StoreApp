@@ -1,4 +1,5 @@
 ﻿using Domain.Constants;
+using System.Net.NetworkInformation;
 
 namespace Domain.Results
 {
@@ -18,6 +19,9 @@ namespace Domain.Results
 
         public static Error Unauthorized(string code, string message) =>
             new(code, message, ErrorType.Unauthorized);
+
+        public static Error Forbidden(string code, string message) =>
+            new(code, message, ErrorType.Forbidden);
 
         public static readonly Error None = new(string.Empty, string.Empty, ErrorType.None);
     }

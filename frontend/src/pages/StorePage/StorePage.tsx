@@ -24,7 +24,7 @@ export function StorePage() {
   const categoryName = searchParams.get('categoryName') || undefined;
   const minPrice = searchParams.get('minPrice') ? Number(searchParams.get('minPrice')) : undefined;
   const maxPrice = searchParams.get('maxPrice') ? Number(searchParams.get('maxPrice')) : undefined;
-  const tagNames = searchParams.getAll('TagNames'); // получаем массив всех выбранных тегов
+  const tagNames = searchParams.getAll('TagNames'); 
 
   const filters = {
     categoryName,

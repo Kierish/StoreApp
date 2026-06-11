@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Domain.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace Domain.Models.Auth
 {
@@ -10,5 +11,6 @@ namespace Domain.Models.Auth
         public required string UserName { get; set; }
         public required string PhoneNumber { get; set; }
         public required string Role { get; set; }
+        public ICollection<Comment> Comments { get; set; } = new HashSet<Comment>();
     }
 }

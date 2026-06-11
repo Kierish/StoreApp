@@ -1,7 +1,7 @@
 ﻿using Application.Pagination;
 using FluentValidation;
 
-namespace Application.Validators
+namespace Application.Validators.Pagination
 {
     public class PageParametersValidator : AbstractValidator<PageParameters>
     {

@@ -109,3 +109,23 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+input[type="url"],
+input[type="tel"],
+textarea,
+select {
+  background-color: #ffffff !important; 
+  color: #08060d !important;            
+  border: 1px solid #ddd;
+  color-scheme: light !important; 
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #999999 !important;
+  opacity: 1 !important; 
+}

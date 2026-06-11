@@ -1,4 +1,5 @@
-﻿using Domain.Interfaces;
+﻿using Domain.Entities;
+using Domain.Interfaces;
 
 namespace Domain.Models.Products
 {
@@ -11,6 +12,7 @@ namespace Domain.Models.Products
         public Category? Category { get; set; }
         public required decimal Price { get; set; }
         public PageMetaData? MetaData { get; set; }
+        public ICollection<Comment> Comments { get; set; } = new HashSet<Comment>();
 
         public bool IsDeleted { get; set; } = false;
         public DateTime? DeletedAt { get; set; }

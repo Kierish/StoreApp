@@ -145,3 +145,10 @@
 .eyeButton:hover {
   color: #5b01ab;
 }
+
+.passwordInput::-ms-reveal,
+.passwordInput::-ms-clear,
+.passwordInput::-webkit-contacts-auto-fill-button,
+.passwordInput::-webkit-credentials-auto-fill-button {
+  display: none !important;
+}

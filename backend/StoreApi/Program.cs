@@ -2,7 +2,7 @@ using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
 using Application.Repositories;
 using Application.Services;
-using Application.Validators;
+using Application.Validators.Pagination;
 using FluentValidation;
 using Infrastructure.Auth;
 using Infrastructure.Auth.Options;
@@ -95,6 +95,10 @@ builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 
 builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
+
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+
+builder.Services.AddScoped<ICommentService, CommentService>();
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtOptions>();
 

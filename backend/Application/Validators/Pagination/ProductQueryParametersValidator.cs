@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Validators
+namespace Application.Validators.Pagination
 {
     public class ProductQueryParametersValidator : AbstractValidator<ProductQueryParameters>
     {
