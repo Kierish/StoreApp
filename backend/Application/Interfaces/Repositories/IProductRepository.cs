@@ -5,7 +5,7 @@ namespace Application.Repositories
 {
     public interface IProductRepository
     {
-        Task<PagedList<Product>> GetListProductsPerPageAsync(PageParameters parameters);
+        Task<PagedList<Product>> GetListProductsPerPageAsync(ProductQueryParameters parameters);
         Task<Product?> GetProductByIdAsync(Guid id);
         void AddProduct(Product product);
         Task<List<Tag>> GetTagsContainedInDto(List<string> tagNames);

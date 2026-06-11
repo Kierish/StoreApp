@@ -17,9 +17,35 @@ namespace Infrastructure.Repositories
             return _context.Products.Include(pr => pr.Category).Include(pr => pr.Tags);
         }
 
-        public async Task<PagedList<Product>> GetListProductsPerPageAsync(PageParameters parameters)
+        public async Task<PagedList<Product>> GetListProductsPerPageAsync(ProductQueryParameters parameters)
         {
-            var query = GetProductWithIncludes();
+            var query = GetProductWithIncludes().AsQueryable();
+
+            if (!string.IsNullOrEmpty(parameters.CategoryName))
+            {
+                query = query.Where(p => p.Category!.Name == parameters.CategoryName);
+            }
+
+            if (parameters.TagNames != null && parameters.TagNames.Any())
+            {
+                foreach (var tagName in parameters.TagNames)
+                {
+                    query = query.Where(p => p.Tags!.Any(t => t.Name == tagName));
+                }
+            }
+
+            if (parameters.MinPrice.HasValue)
+            {
+                query = query.Where(p => p.Price >= parameters.MinPrice.Value);
+            }
+
+            if (parameters.MaxPrice.HasValue)
+            {
+                query = query.Where(p => p.Price <= parameters.MaxPrice.Value);
+            }
+
+            query = query.OrderByDescending(p => p.Id);
+
             var totalCount = await query.CountAsync();
 
             var page = parameters.Page;

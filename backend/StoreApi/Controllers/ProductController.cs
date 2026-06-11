@@ -22,19 +22,19 @@ namespace StoreApi.Controllers
         }
 
         /// <summary>
-        /// Retrieves a paginated list of products.
+        /// Retrieves a paginated list of products with optional filters.
         /// </summary>
-        /// <param name="pageParameters">Pagination parameters including Page number and PageSize.</param>
+        /// <param name="queryParameters">Pagination and filtering parameters (Category, Tags, Price ranges).</param>
         /// <returns>A paginated list of product read data transfer objects.</returns>
         /// <response code="200">Successfully retrieved the products. Pagination metadata is included in the 'X-Pagination' header.</response>
         [HttpGet]
         [AllowAnonymous]
         [ProducesResponseType(typeof(IEnumerable<ProductReadDto>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<ProductReadDto>>> GetProducts(
-            [FromQuery] PageParameters pageParameters
+            [FromQuery] ProductQueryParameters queryParameters
         )
         {
-            var pageProducts = await _service.GetAllAsync(pageParameters);
+            var pageProducts = await _service.GetAllAsync(queryParameters);
 
             var metadata = new
             {

@@ -1,4 +1,4 @@
-import type { PageMetadataCreateDto, PageMetadataReadDto, PageMetadataUpdateDto } from "./metaData";
+import type { PageMetadataCreateDto, PageMetadataReadDto, PageMetadataUpdateDto } from "./metadata";
 
 export interface ProductReadDto {
   id: string;

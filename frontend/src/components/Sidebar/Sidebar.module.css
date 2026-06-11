@@ -1,23 +1,155 @@
 .sidebar {
-  width: 260px;
+  width: 300px;
   background-color: white;
-  padding: 20px;
+  padding: 20px; 
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   height: fit-content;
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  box-sizing: border-box;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 12px;
 }
 
 .title {
-  border-bottom: 1px solid #eee;
-  padding-bottom: 10px;
-  margin: 0 0 15px 0;
-  font-size: 1.2rem;
+  margin: 0;
+  font-size: 1.25rem;
   color: #333;
+  font-weight: bold;
 }
 
-.placeholder {
-  color: #888;
+.clearBtn {
+  background: none;
+  border: none;
+  color: #dc3545;
+  font-weight: bold;
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+.clearBtn:hover {
+  text-decoration: underline;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #555;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filterBtn {
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: #555;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.filterBtn:hover {
+  background-color: #f5f5f5;
+  color: #5b01ab;
+}
+
+.filterBtn.active {
+  background-color: #f3eff7;
+  color: #5b01ab;
+  font-weight: bold;
+}
+
+/* Стили для диапазона цен */
+.priceForm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.priceInput {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
   font-size: 0.9rem;
-  line-height: 1.5;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.priceInput:focus {
+  border-color: #5b01ab;
+}
+
+.priceSeparator {
+  color: #888;
+}
+
+.priceBtn {
+  background-color: #5b01ab;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.priceBtn:hover {
+  background-color: #4a008f;
+}
+
+.tagsGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tagFilterBtn {
+  background-color: #fafafa;
+  border: 1px solid #ddd;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  color: #555;
+  transition: all 0.15s;
+  font-weight: bold;
+}
+
+.tagFilterBtn:hover {
+  border-color: #5b01ab;
+  color: #5b01ab;
+}
+
+.tagFilterBtnActive {
+  background-color: #5b01ab;
+  border-color: #5b01ab;
+  color: white !important;
 }

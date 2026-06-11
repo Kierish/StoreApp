@@ -21,24 +21,40 @@ export function StorePage() {
   const rawPage = parseInt(searchParams.get('page') || '1', 10);
   const currentPage = rawPage > 0 ? rawPage : 1; 
 
+  const categoryName = searchParams.get('categoryName') || undefined;
+  const minPrice = searchParams.get('minPrice') ? Number(searchParams.get('minPrice')) : undefined;
+  const maxPrice = searchParams.get('maxPrice') ? Number(searchParams.get('maxPrice')) : undefined;
+  const tagNames = searchParams.getAll('TagNames'); // получаем массив всех выбранных тегов
+
+  const filters = {
+    categoryName,
+    minPrice,
+    maxPrice,
+    tagNames: tagNames.length > 0 ? tagNames : undefined
+  };
+
   const [productToDelete, setProductToDelete] = useState<ProductReadDto | null>(null);
 
-  const { data, isLoading, isError, error } = useProducts(currentPage);
+  const { data, isLoading, isError, error } = useProducts(currentPage, filters);
   const deleteMutation = useDeleteProduct();
 
   const isEmployee = user?.role === 'Employee' || user?.role === 'Admin';
 
   useEffect(() => {
     if (rawPage !== currentPage) {
+      const updated = new URLSearchParams(searchParams);
+      updated.set('page', currentPage.toString());
       setSearchParams({ page: currentPage.toString() }, { replace: true });
     }
     if (data?.metaData) {
       const { TotalPages, TotalCount } = data.metaData;
       if (TotalCount > 0 && currentPage > TotalPages) {
+        const updated = new URLSearchParams(searchParams);
+        updated.set('page', currentPage.toString());
         setSearchParams({ page: TotalPages.toString() }, { replace: true });
       }
     }
-  }, [rawPage, currentPage, data, setSearchParams]);
+  }, [rawPage, currentPage, data, setSearchParams, searchParams]);
 
   const handlePageChange = (newPage: number) => {
     setSearchParams({ page: newPage.toString() });
@@ -86,8 +102,8 @@ export function StorePage() {
               )}
 
               {data?.products.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
-                  No products found.
+                <div style={{ textAlign: 'center', padding: '40px', color: '#666', backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #ddd' }}>
+                  No products found with these filters.
                 </div>
               ) : (
                 data?.products.map((p) => (
@@ -127,5 +143,6 @@ export function StorePage() {
     </div>
   );
 }
+
 
 export default StorePage;

@@ -17,7 +17,7 @@ namespace Application.Services
             _repo = repo;
         }
 
-        public async Task<PagedList<ProductReadDto>> GetAllAsync(PageParameters pageParameters)
+        public async Task<PagedList<ProductReadDto>> GetAllAsync(ProductQueryParameters pageParameters)
         {
             var pagedProducts = await _repo.GetListProductsPerPageAsync(pageParameters);
 

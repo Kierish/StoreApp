@@ -6,7 +6,7 @@ namespace Application.Interfaces.Services
 {
     public interface IProductService
     {
-        Task<PagedList<ProductReadDto>> GetAllAsync(PageParameters pageParameters);
+        Task<PagedList<ProductReadDto>> GetAllAsync(ProductQueryParameters pageParameters);
         Task<Result<ProductReadDto>> GetByIdAsync(Guid id);
         Task<Result<ProductReadDto>> CreateAsync(ProductCreateDto product);
         Task<Result<bool>> UpdateAsync(Guid id, ProductUpdateDto product);
