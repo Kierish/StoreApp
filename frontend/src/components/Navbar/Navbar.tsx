@@ -3,9 +3,9 @@ import styles from "./Navbar.module.css";
 import { useAuth } from "../../contexts/AuthContext"; 
 
 export function Navbar() {
-  const { isAuthenticated, logout } = useAuth(); 
+  const { isAuthenticated, user, logout } = useAuth();
 
-  return (
+return (
     <header className={styles.header}>
       <Link to="/" className={styles.logo}>
         Store
@@ -35,6 +35,16 @@ export function Navbar() {
             <div className={styles.dropdown}>
               <div className={styles.dropdownItem}>My Profile</div>
               <div className={styles.dropdownItem}>Orders</div>
+              {user?.role === 'Admin' && (
+                <Link 
+                  to="/admin/users" 
+                  className={styles.dropdownItem} 
+                  style={{ textDecoration: 'none', color: '#5b01ab', fontWeight: 'bold' }}
+                >
+                  Manage Users
+                </Link>
+              )}
+
               <div className={styles.dropdownItem}>Settings</div>
               <button 
                 className={`${styles.dropdownItem} ${styles.logoutBtn}`} 

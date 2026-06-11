@@ -17,5 +17,15 @@ namespace Application.Mappers.Auth
                 Role = UserRoles.Customer,
             };
         }
+
+        public static UserReadDto ToReadDto(this ApplicationUser user)
+        {
+            return new UserReadDto(
+                user.Id,
+                user.UserName,
+                user.Email,
+                user.Role
+            );
+        }
     }
 }
