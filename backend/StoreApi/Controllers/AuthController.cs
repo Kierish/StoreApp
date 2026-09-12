@@ -1,11 +1,13 @@
 ﻿using Application.DTOs.Auth;
 using Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace StoreApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [EnableRateLimiting("auth-limiter")]
     public class AuthController : ApiControllerBase<AuthController>
     {
         private readonly IAccountService _accService;
