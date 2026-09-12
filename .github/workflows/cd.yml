@@ -7,51 +7,47 @@ on:
       - completed
     branches: 
       - master
+      - azure/migration 
 
 jobs:
-  deploy-local:
+  deploy-to-azure-webapp:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    runs-on: self-hosted  
-
-    env:
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
-      FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+    runs-on: ubuntu-latest 
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
+    - name: Download Artifact from CI
+      uses: actions/download-artifact@v4
+      with:
+        name: web-api-drop
+        path: ./publish
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        run-id: ${{ github.event.workflow_run.id }}
 
-    - name: Deploy and Verify
-      shell: powershell
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v3
+      with:
+        app-name: 'storeApp' 
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        package: './publish'
+
+    - name: Verify Live Health Check
+      shell: bash
       run: |
-        $imageName = "storeapp-api:latest"
-        $oldImageId = docker images -q $imageName
-        Write-Output "Backup Image ID: $oldImageId"
+        echo "Waiting 15 seconds for Azure App Service to restart..."
+        sleep 15
 
-        Write-Output "Stopping old containers..."
-        docker compose down
+        APP_URL="https://storeapp-djgjghawfsdxb3en.polandcentral-01.azurewebsites.net/health/live"
+        echo "Pinging Health Check: $APP_URL"
 
-        Write-Output "Starting new build and containers..."
-        docker compose up -d --build
+        for i in {1..5}; do
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$APP_URL")
+          if [ "$STATUS" -eq 200 ]; then
+            echo "Deployment succeeded! API is healthy (HTTP 200)."
+            exit 0
+          fi
+          echo "Attempt $i: Received HTTP $STATUS. Retrying in 5s..."
+          sleep 5
+        done
 
-        Write-Output "Waiting for API to initialize..."
-        Start-Sleep -Seconds 10
-
-        Write-Output "Running Health Check..."
-        $response = Invoke-WebRequest -Uri "http://localhost:8080/health" -UseBasicParsing -ErrorAction SilentlyContinue
-
-        if ($response.StatusCode -eq 200) {
-            Write-Output "Deployment succeeded! API is healthy."
-        } else {
-            Write-Output "API is unhealthy! Initiating rollback..."
-            docker compose down
-
-            if ($oldImageId) {
-                Write-Output "Restoring previous stable build..."
-                docker tag $oldImageId $imageName
-                docker compose up -d
-            }
-            
-            exit 1
-        }
+        echo "Health check failed after 5 attempts!"
+        exit 1

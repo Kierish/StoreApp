@@ -130,7 +130,6 @@ namespace StoreApi.Extensions
                     context.HttpContext.Response.ContentType = "application/problem+json";
                     await context.HttpContext.Response.WriteAsJsonAsync(new
                     {
-                        type = "https://httpstatuses.com/429",
                         title = "Too Many Requests",
                         status = StatusCodes.Status429TooManyRequests,
                         detail = "You have exceeded your request rate limit. Please wait before trying again."
