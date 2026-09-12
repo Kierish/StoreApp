@@ -1,0 +1,90 @@
+name: .NET Web APP CI/CD
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "master" ] 
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest 
+
+    env:
+      TESTCONTAINERS_RYUK_DISABLED: "true"
+
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x' 
+
+    - name: Restore dependencies
+      run: dotnet restore StoreApi.sln
+
+    - name: Build
+      run: dotnet build StoreApi.sln --no-restore --configuration Release
+
+    - name: Unit Tests
+      run: dotnet test Tests/UnitTests/UnitTests.csproj --no-build --configuration Release --verbosity normal
+
+    - name: Integration Tests
+      run: dotnet test Tests/IntegrationTests/IntegrationTests.csproj --no-build --configuration Release --verbosity normal
+
+    - name: Publish Artifact
+      run: dotnet publish StoreApi/StoreApi.csproj --no-build --configuration Release --output ./publish
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: web-api-drop
+        path: ./backend/publish
+
+  deploy-to-azure:
+    needs: build-and-test
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/azure/migration' || github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: web-api-drop
+          path: ./publish
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'storeApp'
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: './publish'
+
+      - name: Verify Live Health Check
+        shell: bash
+        run: |
+          echo "Waiting 15 seconds for Azure App Service to restart..."
+          sleep 15
+
+          APP_URL="https://storeapp-djgjghawfsdxb3en.polandcentral-01.azurewebsites.net/health/live"
+
+          for i in {1..5}; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$APP_URL")
+
+            if [ "$STATUS" -eq 200 ]; then
+              echo "Deployment succeeded! API is healthy (HTTP 200)."
+              exit 0
+            fi
+
+            echo "Attempt $i: Received HTTP $STATUS. Retrying in 5s..."
+            sleep 5
+          done
+
+          echo "Health check failed!"
+          exit 1
