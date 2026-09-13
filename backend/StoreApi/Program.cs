@@ -1,10 +1,19 @@
 using Application;
+using Azure.Identity;
 using Infrastructure;
 using Serilog;
 using StoreApi.Extensions;
 using StoreApi.Infrastructure.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Load Secrets from Azure Key Vault
+var keyVaultName = builder.Configuration["KeyVaultName"];
+if (!string.IsNullOrEmpty(keyVaultName))
+{
+    var keyVaultUri = new Uri($"https://{keyVaultName}.vault.azure.net/");
+    builder.Configuration.AddAzureKeyVault(keyVaultUri, new DefaultAzureCredential());
+}
 
 // Logging
 builder.Host.UseSerilog((context, loggerConfiguration) =>
