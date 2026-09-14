@@ -1,0 +1,39 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "master" ] 
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest 
+
+    env:
+      TESTCONTAINERS_RYUK_DISABLED: "true"
+
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4 
+      with:
+        dotnet-version: '9.0.x' 
+
+    - name: Restore dependencies
+      run: dotnet restore StoreApi.sln
+
+    - name: Build
+      run: dotnet build StoreApi.sln --no-restore --configuration Release
+
+    - name: Unit Tests
+      run: dotnet test Tests/UnitTests/UnitTests.csproj --no-build --configuration Release --verbosity normal
+
+    - name: Integration Tests
+      run: dotnet test Tests/IntegrationTests/IntegrationTests.csproj --no-build --configuration Release --verbosity normal
