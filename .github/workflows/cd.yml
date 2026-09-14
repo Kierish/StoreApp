@@ -1,57 +1,41 @@
-name: .NET Web APP CD
+name: CD Pipeline
 
 on:
   workflow_run:
-    workflows: [".NET Web APP CI"] 
+    workflows: ["CI Pipeline"] 
     types:
       - completed
     branches: 
-      - master
+      - "master"
 
 jobs:
-  deploy-local:
+  deploy-to-container-apps:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    runs-on: self-hosted  
+    runs-on: ubuntu-latest
 
-    env:
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
-      FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+    permissions:
+      id-token: write  
+      contents: read 
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-    - name: Deploy and Verify
-      shell: powershell
-      run: |
-        $imageName = "storeapp-api:latest"
-        $oldImageId = docker images -q $imageName
-        Write-Output "Backup Image ID: $oldImageId"
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.STOREAPICONTAINER_AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.STOREAPICONTAINER_AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.STOREAPICONTAINER_AZURE_SUBSCRIPTION_ID }}
 
-        Write-Output "Stopping old containers..."
-        docker compose down
-
-        Write-Output "Starting new build and containers..."
-        docker compose up -d --build
-
-        Write-Output "Waiting for API to initialize..."
-        Start-Sleep -Seconds 10
-
-        Write-Output "Running Health Check..."
-        $response = Invoke-WebRequest -Uri "http://localhost:8080/health" -UseBasicParsing -ErrorAction SilentlyContinue
-
-        if ($response.StatusCode -eq 200) {
-            Write-Output "Deployment succeeded! API is healthy."
-        } else {
-            Write-Output "API is unhealthy! Initiating rollback..."
-            docker compose down
-
-            if ($oldImageId) {
-                Write-Output "Restoring previous stable build..."
-                docker tag $oldImageId $imageName
-                docker compose up -d
-            }
-            
-            exit 1
-        }
+      - name: Build and deploy Container App
+        uses: azure/container-apps-deploy-action@v2
+        with:
+          appSourcePath: ${{ github.workspace }}/backend
+          dockerfilePath: StoreApi/Dockerfile
+          registryUrl: storeacrkv.azurecr.io
+          registryUsername: ${{ secrets.STOREAPICONTAINER_REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.STOREAPICONTAINER_REGISTRY_PASSWORD }}
+          containerAppName: store-api-container
+          resourceGroup: store-rg
+          imageToBuild: storeacrkv.azurecr.io/store-api-container:${{ github.sha }}

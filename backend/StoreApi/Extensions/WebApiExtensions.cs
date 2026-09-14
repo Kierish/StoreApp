@@ -6,6 +6,7 @@ using StoreApi.Infrastructure.Filters;
 using StoreApi.Infrastructure.Swagger;
 using System.Globalization;
 using System.Reflection;
+using System.Threading.RateLimiting;
 
 namespace StoreApi.Extensions
 {
@@ -13,20 +14,28 @@ namespace StoreApi.Extensions
     {
         public static IServiceCollection AddWebServices(
             this IServiceCollection services, 
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IWebHostEnvironment environment)
         {
             // Culture Settings
             var cultureInfo = new CultureInfo("en-US");
             CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
             CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
-            // Exception Handling & Health Checks
+            // Exception Handling
             services.AddProblemDetails();
             services.AddExceptionHandler<GlobalExceptionHandler>();
-            services.AddHealthChecks();
+
+            // Health Checks
+            var sqlConnectionString = configuration.GetConnectionString("DefaultConnection")!;
+            var redisConnectionString = configuration.GetConnectionString("Redis")!;
+
+            services.AddHealthChecks()
+                .AddCheck("self", () => Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy(), tags: ["live"])
+                .AddSqlServer(sqlConnectionString, tags: ["ready"])
+                .AddRedis(redisConnectionString, tags: ["ready"]);
 
             // CORS
-            var allowedOrigins = configuration.GetSection("AllowedOrigins").Get<string[]>() ?? ["http://localhost:5173"];
             services.AddCors(options =>
             {
                 options.AddPolicy(
@@ -34,7 +43,30 @@ namespace StoreApi.Extensions
                     policy =>
                     {
                         policy
-                            .WithOrigins(allowedOrigins)
+                            .SetIsOriginAllowed(origin =>
+                            {
+                                if (string.IsNullOrWhiteSpace(origin))
+                                    return false;
+
+                                if (!Uri.TryCreate(origin, UriKind.Absolute, out var uri))
+                                    return false;
+
+                                if (uri.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase))
+                                    return true;
+
+                                if (uri.Scheme.Equals("https", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    var host = uri.Host;
+
+                                    if (host.Equals("kierish-store.vercel.app", StringComparison.OrdinalIgnoreCase))
+                                        return true;
+
+                                    if (host.EndsWith("-kierish.vercel.app", StringComparison.OrdinalIgnoreCase))
+                                        return true;
+                                }
+
+                                return false;
+                            })
                             .AllowAnyHeader()
                             .AllowAnyMethod()
                             .WithExposedHeaders("X-Pagination");
@@ -85,6 +117,43 @@ namespace StoreApi.Extensions
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 options.IncludeXmlComments(xmlPath);
+            });
+
+            // Rate Limiting Configuration
+            services.AddRateLimiter(options =>
+            {
+                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+                options.OnRejected = async (context, ct) =>
+                {
+                    context.HttpContext.Response.ContentType = "application/problem+json";
+                    await context.HttpContext.Response.WriteAsJsonAsync(new
+                    {
+                        title = "Too Many Requests",
+                        status = StatusCodes.Status429TooManyRequests,
+                        detail = "You have exceeded your request rate limit. Please wait before trying again."
+                    }, ct);
+                };
+
+                options.AddPolicy("general-limiter", context =>
+                    RateLimitPartition.GetFixedWindowLimiter(
+                        context.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+                        _ => new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = 60,
+                            Window = TimeSpan.FromMinutes(1),
+                            QueueLimit = 0 
+                        }));
+
+                options.AddPolicy("auth-limiter", context =>
+                    RateLimitPartition.GetFixedWindowLimiter(
+                        context.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+                        _ => new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = 5,
+                            Window = TimeSpan.FromMinutes(1),
+                            QueueLimit = 0
+                        }));
             });
 
             return services;

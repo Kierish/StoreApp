@@ -15,9 +15,11 @@ namespace StoreApi.Infrastructure.Middlewares
 
         public async Task InvokeAsync(HttpContext context)
         {
-            var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = context.User.FindFirst(JwtRegisteredClaimNames.NameId)?.Value
+                      ?? context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                      ?? "anonymous";
 
-            using (LogContext.PushProperty("UserId", userId ?? "anonymous"))
+            using (LogContext.PushProperty("UserId", userId))
             {
                 await _next(context);
             }

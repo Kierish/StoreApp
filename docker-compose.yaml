@@ -22,6 +22,18 @@ services:
       retries: 10
       start_period: 10s
 
+  migration:
+    build:
+      context: ./backend
+      dockerfile: StoreApi/Dockerfile
+      target: migration
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=db;Database=StoreDb;User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=True;
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
   redis:
     image: redis:alpine
     container_name: store_redis
@@ -47,6 +59,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      migration:
+        condition: service_completed_successfully
       redis:
         condition: service_started
 
