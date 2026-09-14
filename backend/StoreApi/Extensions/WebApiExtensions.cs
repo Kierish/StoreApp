@@ -51,8 +51,7 @@ namespace StoreApi.Extensions
                                 if (!Uri.TryCreate(origin, UriKind.Absolute, out var uri))
                                     return false;
 
-                                if (environment.IsDevelopment() 
-                                    && uri.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase))
+                                if (uri.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase))
                                     return true;
 
                                 if (uri.Scheme.Equals("https", StringComparison.OrdinalIgnoreCase))
