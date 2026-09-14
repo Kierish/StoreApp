@@ -38,53 +38,31 @@ jobs:
     - name: Integration Tests
       run: dotnet test Tests/IntegrationTests/IntegrationTests.csproj --no-build --configuration Release --verbosity normal
 
-    - name: Publish Artifact
-      run: dotnet publish StoreApi/StoreApi.csproj --no-build --configuration Release --output ./publish
 
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: web-api-drop
-        path: ./backend/publish
-
-  deploy-to-azure:
+  deploy-to-container-apps:
     needs: build-and-test
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/azure/migration' || github.ref == 'refs/heads/master')
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/azure/migration')
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download Artifact
-        uses: actions/download-artifact@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
         with:
-          name: web-api-drop
-          path: ./publish
+          client-id: ${{ secrets.STOREAPICONTAINER_AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.STOREAPICONTAINER_AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.STOREAPICONTAINER_AZURE_SUBSCRIPTION_ID }}
 
-      - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v3
+      - name: Build and deploy Container App
+        uses: azure/container-apps-deploy-action@v2
         with:
-          app-name: 'storeApp'
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: './publish'
-
-      - name: Verify Live Health Check
-        shell: bash
-        run: |
-          echo "Waiting 15 seconds for Azure App Service to restart..."
-          sleep 15
-
-          APP_URL="https://storeapp-djgjghawfsdxb3en.polandcentral-01.azurewebsites.net/health/live"
-
-          for i in {1..5}; do
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$APP_URL")
-
-            if [ "$STATUS" -eq 200 ]; then
-              echo "Deployment succeeded! API is healthy (HTTP 200)."
-              exit 0
-            fi
-
-            echo "Attempt $i: Received HTTP $STATUS. Retrying in 5s..."
-            sleep 5
-          done
-
-          echo "Health check failed!"
-          exit 1
+          appSourcePath: ${{ github.workspace }}/backend
+          dockerfilePath: StoreApi/Dockerfile
+          registryUrl: storeacrkv.azurecr.io
+          registryUsername: ${{ secrets.STOREAPICONTAINER_REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.STOREAPICONTAINER_REGISTRY_PASSWORD }}
+          containerAppName: store-api-container
+          resourceGroup: store-rg
+          imageToBuild: storeacrkv.azurecr.io/store-api-container:${{ github.sha }}
