@@ -44,6 +44,10 @@ jobs:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/azure/migration')
     runs-on: ubuntu-latest
 
+    permissions:
+      id-token: write  
+      contents: read 
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
